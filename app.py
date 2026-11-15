@@ -106,8 +106,8 @@ in harmonised satellite observations. It is designed to provide an additional in
 
 c1, c2, c3, c4 = st.columns(4)
 metrics = [
-    ("0.854", "Model AUC"),
-    ("+0.044", "Contagion Impact"),
+    ("0.854", "Overall AUC"),
+    ("0.790", "Median Holdout AUC"),
     ("249,246", "Grid Cells Analysed"),
     ("486,255", "NASA Detections Harmonised"),
 ]
