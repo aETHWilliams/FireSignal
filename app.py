@@ -264,7 +264,7 @@ with tab3:
             <div style='background:#f0f4f8;border-radius:8px;padding:0.8rem;font-size:0.8rem;color:#1e3a5f;'>
                 <b>Avg distance to road:</b> 232 metres<br>
                 <b>Avg distance to fire station:</b> 6.5 km<br>
-                <b>Example:</b> Accidental ignitions from vehicles, machinery, or arson near settlements.
+                <b>Example:</b> Accidental ignitions from vehicles, machinery, or arson near general population.
             </div>
         </div>
         """, unsafe_allow_html=True)
