@@ -167,7 +167,7 @@ with tab2:
         )
         
         # Zoom out to see the whole country
-        view_state = pdk.ViewState(
+                view_state = pdk.ViewState(
             latitude=-27.0,
             longitude=134.0,
             zoom=3.5,
