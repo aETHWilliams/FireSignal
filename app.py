@@ -170,47 +170,50 @@ with tab2:
 
     forecast_df['risk'] = base_bundle['model'].predict_proba(forecast_df[FEATURES])[:,1]
 
-    # 4. PLOT WITH PLOTLY (MUCH CLEANER)
-    try:
-        url = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson"
-        with urllib.request.urlopen(url) as response:
-            world_data = json.load(response)
-        world = gpd.GeoDataFrame.from_features(world_data['features'])
-        australia = world[world['NAME'] == "Australia"]
+    # 4. Render using PyDeck for a professional look
+    # Filter out low risk and create a color column
+    active_risk = forecast_df[forecast_df['risk'] > 0.15].copy()
+    
+    # PyDeck requires RGBA arrays for colors
+    def get_color(risk):
+        if risk > 0.75: return [220, 38, 38, 220] # Deep Red
+        if risk > 0.50: return [234, 88, 12, 200]  # Orange
+        if risk > 0.30: return [234, 179, 8, 180]  # Yellow
+        return [37, 99, 168, 120]                  # Blue (Low risk)
         
-        geometry = [Point(xy) for xy in zip(forecast_df['lon_cell'], forecast_df['lat_cell'])]
-        forecast_gdf = gpd.GeoDataFrame(forecast_df, geometry=geometry, crs="EPSG:4326")
-        clipped_grid = gpd.clip(forecast_gdf, australia)
-        
-        # Filter out low risk
-        active_risk = clipped_grid[clipped_grid['risk'] > 0.15].copy()
-        
-        # Use Plotly for a slicker look
-        import plotly.express as px
-        
-        # Plotly Scatter Mapbox or standard scatter
-        fig = px.scatter(active_risk, 
-                         x='lon_cell', y='lat_cell', 
-                         color='risk', 
-                         color_continuous_scale='Inferno',
-                         labels={'lon_cell': 'Longitude', 'lat_cell': 'Latitude', 'risk': 'Probability'},
-                         title='FireSignal Risk Forecast - 15 Nov 2020')
-        
-        fig.update_traces(marker=dict(symbol='square', size=12, line=dict(width=1, color='DarkSlateGrey')))
-        fig.update_layout(
-            plot_bgcolor='rgba(240, 244, 248, 1)', # Light blue background matching theme
-            paper_bgcolor='rgba(255, 255, 255, 1)',
-            xaxis=dict(showgrid=True, gridcolor='white', zeroline=False, showticklabels=False),
-            yaxis=dict(showgrid=True, gridcolor='white', zeroline=False, showticklabels=False),
-            font=dict(family="Inter", size=12, color="#1a2332"),
-            height=600,
-            margin=dict(l=10, r=10, t=50, b=10)
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        
-    except Exception as e:
-        st.error(f"Could not load map background: {e}")
+    active_risk['color'] = active_risk['risk'].apply(get_color)
+    active_risk['lat_center'] = active_risk['lat_cell'] + 0.5
+    active_risk['lon_center'] = active_risk['lon_cell'] + 0.5
+
+    layer = pdk.Layer(
+        "ScatterplotLayer",
+        active_risk,
+        get_position=["lon_center", "lat_center"],
+        get_fill_color="color",
+        get_radius=45000, # 45km radius to cover the 1-degree grid
+        pickable=True,
+        opacity=0.8,
+        stroked=False,
+    )
+
+    view_state = pdk.ViewState(
+        latitude=-27.0,
+        longitude=134.0,
+        zoom=3.5,
+        pitch=0,
+    )
+
+    tooltip = {
+        "html": "<b>Grid Cell</b><br/>Lat: {lat_cell}<br/>Lon: {lon_cell}<br/><b>Risk: {risk}</b>",
+        "style": {"backgroundColor": "#1e3a5f", "color": "white"}
+    }
+
+    st.pydeck_chart(pdk.Deck(
+        layers=[layer],
+        initial_view_state=view_state,
+        tooltip=tooltip,
+        map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+    ))
 
 with tab3:
     st.markdown('<div class="section-title">Fire Regime Analysis</div>', unsafe_allow_html=True)
