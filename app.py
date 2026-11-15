@@ -419,12 +419,30 @@ with tab4:
         with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
             lga_geojson = json.load(f)
             
+        # Populate the corrected populations (matching the map tab)
+        real_populations = {
+            "Tenterfield": "4,066", "Inverell": "16,483", "Moree Plains": "13,159",
+            "Walcha": "3,092", "MidCoast": "90,000", "Tamworth Regional": "59,663",
+            "Upper Hunter Shire": "14,100", "Cessnock": "55,560", "Narrabri": "13,100",
+            "Clarence Valley": "50,000", "Lachlan Valley": "6,000",
+            "Mid-Western Regional": "25,500", "Richmond Valley": "23,500",
+            "Glen Innes Severn": "9,000", "Oberon": "5,500",
+            "Gunnedah": "13,000", "Coonamble": "4,000", "Walgett": "6,500"
+        }
+            
         top_lgas = []
         for feature in lga_geojson['features']:
             name = feature['properties']['LGA_NAME_2021']
             risk_str = feature['properties'].get('risk_val', '0%').replace('%', '')
+            
+            # Use corrected population if available
+            if name in real_populations:
+                pop_str = real_populations[name]
+            else:
+                pop_str = feature['properties'].get('pop', 'N/A')
+
             kbdi_str = feature['properties'].get('kbdi', 'N/A')
-            pop_str = feature['properties'].get('pop', 'N/A')
+            
             try:
                 risk_val = float(risk_str)
             except:
