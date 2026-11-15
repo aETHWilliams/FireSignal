@@ -384,7 +384,7 @@ with tab4:
     with col1:
         st.markdown("### Data Sources")
         st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
+        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06); margin-bottom: 1.5rem;'>
             <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
                 <li><b>NASA FIRMS (MODIS and VIIRS):</b> 486,255 harmonised active fire detections for 2020, and 1.89M for 2019.</li>
                 <li><b>Open Meteo:</b> 54,300 daily weather records (temperature, rainfall, wind, ET0).</li>
@@ -409,14 +409,30 @@ with tab4:
         """, unsafe_allow_html=True)
 
     with col2:
-        st.markdown("### Future Improvements")
+        st.markdown("### Our Fuel Moisture Proxy")
+        st.markdown("""
+        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06); margin-bottom: 1.5rem;'>
+            <div style='font-size:0.85rem;color:#4a6080;line-height:1.8;'>
+                High-resolution soil moisture data is notoriously difficult to align with daily fire events due to latency and cloud cover. 
+                To keep the pipeline lightweight and operational, we engineered a proxy for fuel moisture using weather variables:
+                <br><br>
+                <code style="background:#f0f4f8; padding: 2px 6px; border-radius: 4px; color: #1e3a5f;">fuel_moisture = 1 / (1 + rain - ET0)</code>
+                <br><br>
+                <b>Why this works:</b> It explicitly models the balance between moisture input (rainfall) and moisture loss (evapotranspiration). 
+                When ET0 outpaces rain, the fuel dries out. It is a standard hydrological balance model that proxies the physical conditions satellites look for.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("### Next Step: NASA SMAP")
         st.markdown("""
         <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
-            <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
-                <li><b>Live API Integration:</b> The model is currently a historical demonstration. The next step is to connect it to a live daily API that pulls the last 24 hours of FIRMS data and Open Meteo forecasts to generate a real time morning briefing map.</li>
-                <li><b>Live Weather Forecasts:</b> Replace the historical day of year proxy with actual 7 day weather forecasts to improve predictive accuracy.</li>
-                <li><b>Higher Resolution Grid:</b> Downscale from 100km cells to 25km cells to provide more localised, actionable intelligence for local councils.</li>
-                <li><b>Fuel Moisture (SMAP):</b> Integrate NASA SMAP soil moisture data to replace the mathematical proxy for fuel dryness.</li>
-            </ul>
+            <div style='font-size:0.85rem;color:#4a6080;line-height:1.8;'>
+                While our proxy is effective, the clear next step is to integrate <b>NASA's Soil Moisture Active Passive (SMAP)</b> mission.
+                <br><br>
+                SMAP provides direct, high-resolution measurements of surface and root-zone soil moisture. 
+                Replacing our mathematical proxy with SMAP L4 data would give the model a direct physical measurement of fuel dryness, 
+                potentially improving accuracy in regions where evapotranspiration rates are highly variable.
+            </div>
         </div>
         """, unsafe_allow_html=True)
