@@ -359,29 +359,22 @@ with tab3:
         </div>
         """, unsafe_allow_html=True)
 
-    # Spacer to create the 50/50 alignment for the bottom box
-    st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
-
     # Single wide white box for the combined narrative
     st.markdown("""
-    <div style='background:#ffffff; border:1px solid #dbe8f5; border-left: 6px solid #dc2626; border-radius:12px; padding:1.6rem 2rem; margin-top: 1.5rem; box-shadow: 0 2px 8px rgba(37,99,168,0.06);'>
-        
-        <div style='font-family:Sora,sans-serif; font-size:1rem; font-weight:700; color:#1e3a5f; margin-bottom: 1rem;'>
-            The Catastrophic Impact
-        </div>
-        
-        <div style='font-size:0.88rem; color:#4a6080; line-height:1.9;'>
-            While human activity causes more fire ignitions near towns, our analysis of 1,021 cause-attributed fires showed that 
-            <b>lightning-associated fires burn 5.7x larger on average</b> and account for <b>98% of the fires with the highest detection counts</b>. 
-            Standard fire indices treat these two scenarios as identical. FireSignal provides the data to distinguish them.
-            <br><br>
-            
-            <b style='color: #1e3a5f;'>Note on fire merging:</b> When two fires approach each other, the model's spatial contagion feature captures the increased risk in the cells between them. 
-            While we don't explicitly model fire merging, our model learns that fires are not isolated. They interact spatially, which is why the model highlights the areas between active fire zones.
-        </div>
-        
-    </div>
-    """, unsafe_allow_html=True)
+<div style='background:#ffffff; border:1px solid #dbe8f5; border-left: 6px solid #dc2626; border-radius:12px; padding:1.6rem 2rem; margin-top: 1.5rem; box-shadow: 0 2px 8px rgba(37,99,168,0.06);'>
+<div style='font-family:Sora,sans-serif; font-size:1rem; font-weight:700; color:#1e3a5f; margin-bottom: 1rem;'>
+The Catastrophic Impact
+</div>
+<div style='font-size:0.88rem; color:#4a6080; line-height:1.9;'>
+While human activity causes more fire ignitions near towns, our analysis of 1,021 cause-attributed fires showed that 
+<b>lightning-associated fires burn 5.7x larger on average</b> and account for <b>98% of the fires with the highest detection counts</b>. 
+Standard fire indices treat these two scenarios as identical. FireSignal provides the data to distinguish them.
+<br><br>
+<b style='color: #1e3a5f;'>Note on fire merging:</b> When two fires approach each other, the model's spatial contagion feature captures the increased risk in the cells between them. 
+While we don't explicitly model fire merging, our model learns that fires are not isolated. They interact spatially, which is why the model highlights the areas between active fire zones.
+</div>
+</div>
+""", unsafe_allow_html=True)
 
 with tab4:
     st.markdown('<div class="section-title">Data and Limitations</div>', unsafe_allow_html=True)
