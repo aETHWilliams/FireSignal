@@ -138,34 +138,45 @@ with tab1:
 
 with tab2:
     st.markdown('<div class="section-title">Historical Forecast Demonstration (November 15, 2020)</div>', unsafe_allow_html=True)
-    st.markdown("Predicted probability of ignition across Australian LGAs. Hover over regions to see the driving factors.")
+    st.markdown("Predicted probability of ignition across Australian regions. Hover over regions to see the driving factors.")
     
     try:
         import json
         import pydeck as pdk
         
-        # 1. Load the simplified map (from your GitHub repo)
+        # 1. Load the simplified map
         with open(f"{DRIVE}/australia_lga_simplified.geojson", "r") as f:
             lga_geojson = json.load(f)
             
         # 2. Load the risk predictions
         lga_risk = pd.read_csv(f"{DRIVE}/lga_risk_full.csv")
         
-        # 3. Loop through the map features and color them based on our data
+        # 3. Create a dictionary of predictions for fast lookup
+        # We strip spaces and uppercase to make matching more forgiving
+        risk_dict = {}
+        for _, row in lga_risk.iterrows():
+            clean_name = str(row['LGA_NAME']).strip().upper()
+            risk_dict[clean_name] = row
+
+        # 4. Loop through the map features
         for feature in lga_geojson['features']:
-            # The simplified file uses 'SA2_NAME' or similar, we need to match it
-            # Fallback to checking for 'LGA_NAME_2021' or 'NAME'
             props = feature['properties']
-            region_name = props.get('LGA_NAME_2021', props.get('SA2_NAME', props.get('name', 'Unknown')))
+            
+            # Try to find a valid name in the properties
+            region_name = "Unknown"
+            for key in ['LGA_NAME', 'SA3_NAME', 'SA2_NAME', 'NAME', 'name']:
+                if key in props and props[key]:
+                    region_name = props[key]
+                    break
             
             feature['properties']['LGA_NAME'] = region_name
+            clean_region = str(region_name).strip().upper()
             
-            match = lga_risk[lga_risk['LGA_NAME'] == region_name]
+            # Match with our predictions
+            row = risk_dict.get(clean_region)
             
-            if len(match) > 0:
-                row = match.iloc[0]
+            if row is not None:
                 risk_val = float(row['risk'])
-                
                 feature['properties']['risk_val'] = f"{risk_val*100:.1f}%"
                 feature['properties']['kbdi'] = f"{row['kbdi_max']} (High Drought)"
                 feature['properties']['pop'] = f"{int(row['pop_5km']):,} people"
@@ -184,6 +195,7 @@ with tab2:
                     feature['properties']['color'] = [37, 99, 168, 180] # Blue
                     feature['properties']['status'] = "Low Risk"
             else:
+                # No data
                 feature['properties']['risk_val'] = "N/A"
                 feature['properties']['kbdi'] = "N/A"
                 feature['properties']['pop'] = "N/A"
@@ -191,7 +203,7 @@ with tab2:
                 feature['properties']['color'] = [60, 70, 85, 150] # Dark Grey
                 feature['properties']['status'] = "No Prediction Data"
 
-        # 4. Render
+        # 5. Render
         layer = pdk.Layer(
             "GeoJsonLayer",
             lga_geojson,
@@ -199,12 +211,12 @@ with tab2:
             stroked=True,
             filled=True,
             get_fill_color="properties.color",
-            get_line_color=[255, 255, 255, 100],
+            get_line_color=[255, 255, 255, 80],
             line_width_min_pixels=0.5,
         )
         
-        # Zoom into the east coast where the fires are
-        view_state = pdk.ViewState(latitude=-32.0, longitude=151.0, zoom=4.5, pitch=0)
+        # Zoom out to see the whole of Australia
+        view_state = pdk.ViewState(latitude=-27.0, longitude=134.0, zoom=3.5, pitch=0)
         
         tooltip = {
             "html": "<b>{LGA_NAME}</b><br/>"
