@@ -205,7 +205,7 @@ with tab1:
         st.markdown("""
         *   **What I predict:** The 24-hour probability of a NASA FIRMS thermal anomaly detection within a 100km grid cell.
         *   **Positive Event:** Any thermal anomaly detected in the cell on the following day.
-        *   **Ranking vs Calibration:** I optimized for ranking (AUC 0.854). For operational deployment, the raw scores would require calibration (e.g., isotonic regression) to ensure an 80% predicted risk corresponds to an 80% empirical probability.
+        *   **Ranking vs Calibration:** I optimised for ranking (AUC 0.854). For operational deployment, the raw scores would require calibration (e.g., isotonic regression) to ensure an 80% predicted risk corresponds to an 80% empirical probability.
         *   **PR-AUC:** 0.543 (Robust metric for imbalanced datasets).
         *   **Cause Attribution:** The 98% statistic is derived from 1,021 cause-attributed fires (Mulgar dataset).
         """)
