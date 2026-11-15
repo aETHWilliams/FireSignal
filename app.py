@@ -92,7 +92,7 @@ st.markdown("""
             <li><b>More than 3,000 houses</b> were destroyed.</li>
             <li>An estimated <b>3 billion animals</b> were killed or displaced.</li>
         </ul>
-        <b style='color: #1e3a5f;'>I have the data. I have the technology. We need to do better.</b>
+        <b style='color: #1e3a5f;'>We have the data. We have the technology. We need to do better.</b>
     </div>
 </div>
 """, unsafe_allow_html=True)
