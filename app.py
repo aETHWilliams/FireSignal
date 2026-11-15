@@ -22,10 +22,10 @@ st.markdown("""
     .main { background-color: #f0f4f8; }
     .block-container { padding-top: 2rem; padding-bottom: 3rem; max-width: 1200px; }
     
-    /* Header Box */
-    .header-wrap { background: #f4baa3; border-radius: 16px; padding: 2.5rem 3rem; margin-bottom: 2rem; box-shadow: 0 4px 24px rgba(244,186,163,0.4); }
-    .header-title { font-family: 'Sora', sans-serif; font-size: 2.4rem; font-weight: 700; color: #1e3a5f; letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 0.4rem; }
-    .header-sub { font-size: 0.9rem; color: #4a6080; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; }
+    /* Header Box - Navy */
+    .header-wrap { background: #1e3a5f; border-radius: 16px; padding: 2.5rem 3rem; margin-bottom: 2rem; box-shadow: 0 4px 24px rgba(30,58,95,0.3); }
+    .header-title { font-family: 'Sora', sans-serif; font-size: 2.4rem; font-weight: 700; color: #ffffff; letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 0.4rem; }
+    .header-sub { font-size: 0.9rem; color: #a8c8e8; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; }
     
     /* Metric Cards */
     .metric-card { background: #ffffff; border: 1px solid #dbe8f5; border-radius: 12px; padding: 1.2rem 1rem; text-align: center; box-shadow: 0 2px 8px rgba(37,99,168,0.07); }
@@ -35,17 +35,19 @@ st.markdown("""
     /* Section Titles */
     .section-title { font-family: 'Sora', sans-serif; font-size: 1.2rem; font-weight: 600; color: #1e3a5f; border-bottom: 2px solid #dbe8f5; padding-bottom: 0.5rem; margin-bottom: 1.2rem; margin-top: 2rem; }
     
-    /* Info Boxes (The blue ones you wanted changed) */
-    .info-box { background: #f4baa3; border-radius: 10px; padding: 1rem 1.4rem; margin-bottom: 1.2rem; font-size: 0.86rem; color: #1e3a5f; line-height: 1.8; }
+    /* Info Boxes - Navy Background, White Text */
+    .info-box { background: #1e3a5f; border-radius: 10px; padding: 1rem 1.4rem; margin-bottom: 1.2rem; font-size: 0.86rem; color: #ffffff; line-height: 1.8; }
+    .info-box b { color: #a8c8e8; } /* Highlight bold text in a lighter blue */
     
-    /* About Box */
-    .about-box { background: #f4baa3; border: 1px solid #dbe8f5; border-left: 4px solid #2563a8; border-radius: 10px; padding: 1.5rem; font-size: 0.88rem; color: #1e3a5f; line-height: 1.9; box-shadow: 0 2px 8px rgba(37,99,168,0.05); }
+    /* About Box - Navy Background */
+    .about-box { background: #1e3a5f; border: 1px solid #dbe8f5; border-left: 4px solid #3b82c4; border-radius: 10px; padding: 1.5rem; font-size: 0.88rem; color: #ffffff; line-height: 1.9; box-shadow: 0 2px 8px rgba(37,99,168,0.05); }
+    .about-box b { color: #a8c8e8; }
     
     /* Tags */
-    .tag { display: inline-block; background: #ffffff; color: #2563a8; font-size: 0.72rem; font-weight: 500; padding: 0.2rem 0.6rem; border-radius: 20px; margin-right: 0.3rem; }
+    .tag { display: inline-block; background: #2563a8; color: #ffffff; font-size: 0.72rem; font-weight: 500; padding: 0.2rem 0.6rem; border-radius: 20px; margin-right: 0.3rem; }
     
     /* Text Selection Highlight */
-    ::selection { background: #f4baa3; color: #1a2332; }
+    ::selection { background: #3b82c4; color: #ffffff; }
 </style>
 """, unsafe_allow_html=True)
 
