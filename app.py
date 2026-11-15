@@ -37,7 +37,7 @@ st.markdown("""
     
     /* Info Boxes - Navy Background, White Text */
     .info-box { background: #1e3a5f; border-radius: 10px; padding: 1rem 1.4rem; margin-bottom: 1.2rem; font-size: 0.86rem; color: #ffffff; line-height: 1.8; }
-    .info-box b { color: #a8c8e8; } /* Highlight bold text in a lighter blue */
+    .info-box b { color: #a8c8e8; }
     
     /* About Box - Navy Background */
     .about-box { background: #1e3a5f; border: 1px solid #dbe8f5; border-left: 4px solid #3b82c4; border-radius: 10px; padding: 1.5rem; font-size: 0.88rem; color: #ffffff; line-height: 1.9; box-shadow: 0 2px 8px rgba(37,99,168,0.05); }
@@ -115,37 +115,54 @@ additional predictive information about where fire activity will occur next, dri
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2, tab3 = st.tabs(["Model Validation", "Forecast Map", "Fire Regimes"])
+tab1, tab2, tab3, tab4 = st.tabs(["Scientific Rigour", "Forecast Map", "Fire Regimes", "About"])
 
+# --- NEW SCIENTIFIC RIGOUR TAB ---
 with tab1:
     st.markdown('<div class="section-title">Rigorous Model Evaluation</div>', unsafe_allow_html=True)
     
     st.markdown("""
     <div class="info-box">
-    We aggregated NASA FIRMS detections into a 1-degree grid, generating 249,246 daily records. 
-    We applied a strict chronological train/test split (Train: Jan-Oct, Test: Nov-Dec).
+    We aggregated NASA FIRMS detections into a 1-degree grid (~100km resolution), generating 249,246 daily records. 
+    We applied a strict chronological train/test split (Train: Jan-Oct, Test: Nov-Dec) to prevent data leakage.
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("**1. Ablation Test**")
+    st.markdown("### 1. Ablation Test (Proving Contagion)")
     st.markdown("""
-    To isolate the predictive value of spatial dependence, we compared two models:
-    *   **Base Model (Geography + Weather):** AUC 0.810
-    *   **FireSignal (+ Neighbour-Fire Feature):** AUC 0.854
-    *   *Result:* A paired bootstrap confirmed that adding the neighbour-fire feature improved AUC by +0.044 (95% CI: +0.041 to +0.047, p < 0.001).
+    To isolate the predictive value of spatial dependence, we compared two identical models, one with and one without the `neighbor_fire_yesterday` feature:
+    
+    | Model | Features | AUC | PR-AUC |
+    | :--- | :--- | :--- | :--- |
+    | **Base Model** | Geography + Weather + Drought | 0.810 | 0.421 |
+    | **FireSignal** | Base + Neighbour-Fire Feature | **0.854** | **0.543** |
+    
+    *Result:* A paired bootstrap on identical test rows (n=2,000 iterations) confirmed that adding the neighbour-fire feature improved AUC by **+0.044** (95% CI: +0.041 to +0.047, p < 0.001).
     """)
 
-    st.markdown("**2. Permutation Importance**")
+    st.markdown("### 2. Permutation Importance")
     st.markdown("""
-    Rather than relying on default feature importance, we shuffled individual features to measure their impact on model performance:
+    Rather than relying on default feature importance (which can be biased), we shuffled individual features to measure their exact impact on model accuracy:
     *   `neighbor_fire_yesterday`: **0.144**
     *   `longitude`: 0.067
     *   `latitude`: 0.067
     """)
 
+    st.markdown("### 3. Does the model generalise?")
     st.markdown("""
-    <div class="info-box" style="border-left: 4px solid #2563a8;">
-    <b>Conclusion:</b> Fire occurrence is not solely a function of weather or location. It is measurably influenced by recent nearby fire activity.
+    | Validation Test | Description | Result |
+    | :--- | :--- | :--- |
+    | **Forward-in-time** | Train 2019, Test 2020 | AUC **0.843** |
+    | **Geographic holdout** | Median of 4 spatial splits | AUC **0.790** |
+    | **New ignitions only** | Removed ongoing fires | AUC **0.697** |
+    | **Severity model** | Predict fire size (FRP) | CV R² **-0.11** |
+    """)
+    
+    st.markdown("""
+    <div class="info-box" style="border-left: 4px solid #dc2626;">
+    <b>Conclusion & Limitations:</b> Fire occurrence is not solely a function of weather or location; it is measurably influenced by recent nearby fire activity. 
+    However, we also tested whether the system could predict fire <b>severity</b> (size). It performed poorly (CV R² -0.11). We report this because understanding the limitations 
+    of satellite-derived predictions is just as important as understanding their potential.
     </div>
     """, unsafe_allow_html=True)
 
@@ -154,14 +171,13 @@ with tab2:
     st.markdown("Predicted probability of ignition across Australian LGAs. Hover over regions to see the driving factors.")
     
     try:
-        # Load the LGA map
         with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
             lga_geojson = json.load(f)
 
-        # Fill all empty/no-data regions with #f4baa3
+        # Fill all empty/no-data regions with navy blue
         for feature in lga_geojson['features']:
             if feature['properties'].get('status') == "No Data":
-                feature['properties']['color'] = [244, 186, 163, 180] # #f4baa3
+                feature['properties']['color'] = [30, 58, 95, 180] # Navy
                 feature['properties']['status'] = "Low Risk"
 
         layer = pdk.Layer(
@@ -175,7 +191,6 @@ with tab2:
             line_width_min_pixels=0.5,
         )
         
-        # Zoom out to see the whole country
         view_state = pdk.ViewState(
             latitude=-27.0,
             longitude=134.0,
@@ -253,23 +268,24 @@ with tab3:
     </div>
     """, unsafe_allow_html=True)
 
-st.markdown('<div class="section-title">About This Model</div>', unsafe_allow_html=True)
-st.markdown("""
-<div class="about-box">
-<b style='color:#1e3a5f'>Methodology</b><br>
-This model utilises XGBoost trained on harmonised MODIS/VIIRS satellite data, weather indices, population density, and infrastructure proximity across 249,246 daily records in 2020.
-It is designed to estimate the probability of <b>subsequent fire activity</b>, providing a predictive signal for where attention may be needed.<br><br>
-
-<b style='color:#1e3a5f'>What This New Layer Adds</b><br>
-By incorporating spatial and temporal dependence, FireSignal demonstrated that a neighbouring-fire feature improved AUC from 0.810 to 0.854, proving that satellite data contains additional predictive information beyond weather and geography.<br><br>
-
-<b style='color:#1e3a5f'>Key Limitation</b><br>
-The model predicts <b>ignition probability</b>, not severity. Predicting fire size (FRP) failed (CV R² -0.11) because size is driven by wind direction and suppression timing, which satellites cannot observe.<br><br>
-
-<span class="tag">XGBoost</span>
-<span class="tag">Spatiotemporal</span>
-<span class="tag">Ablation</span>
-<span class="tag">MODIS / VIIRS</span>
-<span class="tag">Streamlit</span>
-</div>
-""", unsafe_allow_html=True)
+with tab4:
+    st.markdown('<div class="section-title">About This Model</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="about-box">
+    <b>Methodology</b><br>
+    This model utilises XGBoost trained on harmonised MODIS/VIIRS satellite data, weather indices, population density, and infrastructure proximity across 249,246 daily records in 2020.
+    It is designed to estimate the probability of <b>subsequent fire activity</b>, providing a predictive signal for where attention may be needed.<br><br>
+    
+    <b>What This New Layer Adds</b><br>
+    By incorporating spatial and temporal dependence, FireSignal demonstrated that a neighbouring-fire feature improved AUC from 0.810 to 0.854, proving that satellite data contains additional predictive information beyond weather and geography.<br><br>
+    
+    <b>Data Sources</b><br>
+    Satellite: NASA FIRMS (MODIS + VIIRS). Environmental: Open-Meteo, WorldPop. Infrastructure: Geoscience Australia.<br><br>
+    
+    <span class="tag">XGBoost</span>
+    <span class="tag">Spatiotemporal</span>
+    <span class="tag">Ablation</span>
+    <span class="tag">MODIS / VIIRS</span>
+    <span class="tag">Streamlit</span>
+    </div>
+    """, unsafe_allow_html=True)
