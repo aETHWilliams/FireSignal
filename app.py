@@ -138,48 +138,61 @@ with tab1:
 
 with tab2:
     st.markdown('<div class="section-title">Historical Forecast Demonstration (November 15, 2020)</div>', unsafe_allow_html=True)
-    st.markdown("Predicted probability of ignition across high-risk Local Government Areas (LGAs).")
+    st.markdown("Predicted probability of ignition across Australia. Hover over regions to see the driving factors.")
     
     try:
         import urllib.request, json
         import geopandas as gpd
         
-        # 1. Load the pre-calculated risk data from GitHub
-        lga_risk = pd.read_csv(f"{DRIVE}/lga_risk_2020.csv")
+        # 1. Load the 50 high-risk predictions
+        lga_risk = pd.read_csv(f"{DRIVE}/lga_risk_full.csv")
         
-        # 2. Fetch the LGA boundaries (same source as Colab)
+        # 2. Fetch the full LGA boundaries
         lga_url = "https://services6.arcgis.com/LHYr6B7cFUs40aCx/arcgis/rest/services/ASGS_ABSBoundaries_3857/FeatureServer/1/query?where=1%3D1&outFields=LGA_NAME_2021&f=geojson&outSR=4326"
         with urllib.request.urlopen(lga_url) as response:
             lga_geojson = json.load(response)
             
-        # 3. Loop through GeoJSON and inject the risk data + colors
+        # 3. Loop through EVERY LGA in Australia
         for feature in lga_geojson['features']:
             region_name = feature['properties'].get('LGA_NAME_2021', 'Unknown')
-            
-            # Match with our CSV
-            match = lga_risk[lga_risk['LGA_NAME'] == region_name]
-            risk_val = float(match['risk'].values[0]) if len(match) > 0 else 0.0
-            
-            feature['properties']['risk_val'] = round(risk_val, 2)
             feature['properties']['LGA_NAME'] = region_name
             
-            # Assign colors based on risk
-            if risk_val > 0.75:
-                feature['properties']['color'] = [220, 38, 38, 200] # Red
-                feature['properties']['status'] = "Extreme Risk"
-            elif risk_val > 0.60:
-                feature['properties']['color'] = [234, 88, 12, 200] # Orange
-                feature['properties']['status'] = "High Risk"
-            elif risk_val > 0.40:
-                feature['properties']['color'] = [234, 179, 8, 200] # Yellow
-                feature['properties']['status'] = "Moderate Risk"
-            elif risk_val > 0.0:
-                feature['properties']['color'] = [37, 99, 168, 150] # Blue
-                feature['properties']['status'] = "Low Risk"
+            # Match with our 50 predictions
+            match = lga_risk[lga_risk['LGA_NAME'] == region_name]
+            
+            if len(match) > 0:
+                # This LGA had a prediction
+                row = match.iloc[0]
+                risk_val = float(row['risk'])
+                
+                # Inject reasoning data
+                feature['properties']['risk_val'] = f"{risk_val*100:.1f}%"
+                feature['properties']['kbdi'] = f"{row['kbdi_max']} (High Drought)"
+                feature['properties']['pop'] = f"{int(row['pop_5km']):,} people"
+                feature['properties']['power'] = f"{int(row['dist_power'])} km"
+                
+                if risk_val > 0.75:
+                    feature['properties']['color'] = [220, 38, 38, 220] # Red
+                    feature['properties']['status'] = "Extreme Risk"
+                elif risk_val > 0.60:
+                    feature['properties']['color'] = [234, 88, 12, 220] # Orange
+                    feature['properties']['status'] = "High Risk"
+                elif risk_val > 0.40:
+                    feature['properties']['color'] = [234, 179, 8, 220] # Yellow
+                    feature['properties']['status'] = "Moderate Risk"
+                else:
+                    feature['properties']['color'] = [37, 99, 168, 180] # Blue
+                    feature['properties']['status'] = "Low Risk"
             else:
-                feature['properties']['color'] = [200, 200, 200, 50] # Grey (No data)
+                # The rest of Australia (no high-confidence prediction)
+                feature['properties']['risk_val'] = "N/A"
+                feature['properties']['kbdi'] = "N/A"
+                feature['properties']['pop'] = "N/A"
+                feature['properties']['power'] = "N/A"
+                feature['properties']['color'] = [60, 70, 85, 150] # Dark Grey
+                feature['properties']['status'] = "No Prediction Data"
 
-        # 4. Render with PyDeck
+        # 4. Render the map
         layer = pdk.Layer(
             "GeoJsonLayer",
             lga_geojson,
@@ -188,14 +201,21 @@ with tab2:
             filled=True,
             get_fill_color="properties.color",
             get_line_color=[255, 255, 255, 100],
-            line_width_min_pixels=1,
+            line_width_min_pixels=0.5,
         )
         
-        view_state = pdk.ViewState(latitude=-31.0, longitude=147.0, zoom=4.5, pitch=0) # Centered on NSW fire zone
+        view_state = pdk.ViewState(latitude=-27.0, longitude=134.0, zoom=3.5, pitch=0)
         
+        # 5. Tooltip (The reasoning)
         tooltip = {
-            "html": "<b>{LGA_NAME}</b><br/>Status: <b>{status}</b><br/>Avg Risk: {risk_val}",
-            "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "13px", "padding": "8px", "borderRadius": "6px"}
+            "html": "<b>{LGA_NAME}</b><br/>"
+                    "Status: <b>{status}</b><br/>"
+                    "Predicted Risk: <b>{risk_val}</b><br/><hr style='margin:4px 0; border-color:#4a6080'>"
+                    "<b>Driving Factors:</b><br/>"
+                    "Drought (KBDI): {kbdi}<br/>"
+                    "Population within 5km: {pop}<br/>"
+                    "Distance to Powerline: {power}",
+            "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "12px", "padding": "10px", "borderRadius": "6px", "width": "250px"}
         }
 
         st.pydeck_chart(pdk.Deck(
@@ -204,16 +224,6 @@ with tab2:
             tooltip=tooltip,
             map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
         ))
-        
-        st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-left:4px solid #2563a8;border-radius:10px;
-        padding:1.2rem 1.4rem;margin-top:1.5rem;box-shadow:0 2px 8px rgba(37,99,168,0.05);font-size:0.85rem;
-        color:#4a6080;line-height:1.8;'>
-        <b>Validation Note:</b> The highest predicted risk areas (Tenterfield, Inverell, Moree Plains, Walcha) 
-        align directly with the regions severely impacted by the 2019-2020 Black Summer bushfires. 
-        This map demonstrates the model's ability to anticipate spatial fire activity.
-        </div>
-        """, unsafe_allow_html=True)
         
     except Exception as e:
         st.error(f"Could not generate the map: {e}")
