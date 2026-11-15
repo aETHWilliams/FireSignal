@@ -92,7 +92,7 @@ st.markdown("""
             <li><b>More than 3,000 houses</b> were destroyed.</li>
             <li>An estimated <b>3 billion animals</b> were killed or displaced.</li>
         </ul>
-        <b style='color: #1e3a5f;'>We have the data. We have the technology. We need to do better.</b>
+        <b style='color: #1e3a5f;'>I have the data. I have the technology. We need to do better.</b>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -444,3 +444,15 @@ with tab4:
             </ul>
         </div>
         """, unsafe_allow_html=True)
+
+    # Add this at the very bottom of tab4
+    st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
+    
+    with st.expander("View Technical Caveats & Model Boundaries"):
+        st.markdown("""
+        *   **100km Grid Resolution:** This model operates on a 100km regional grid. It is designed as a **regional triage layer**, not a street-level dispatch tool. The next step is downscaling to a 25km grid.
+        *   **Persistence vs. Discovery:** While the neighbour-fire feature captures some fire persistence (ongoing fires), it also captures genuine new ignitions. A model trained only on *new* ignitions still achieved an AUC of 0.697.
+        *   **The 98% Statistic:** This is based on 1,021 cause-attributed fires (Mulgar dataset). The "highest detection-count category" is defined as the top 10% of fires by nearby FIRMS detections (≥229 detections within 11km and 7 days).
+        *   **Probability Calibration:** The model is optimized for ranking (AUC), not absolute calibration. An 83.6% risk means the cell ranks highly, not that there is an 83.6% exact chance of fire. Operational use requires isotonic regression.
+        *   **Agency Use:** I have not tested this with AFAC or NSW RFS. It is a research prototype intended to show what is possible with harmonised NASA data.
+        """)
