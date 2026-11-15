@@ -203,7 +203,6 @@ with tab1:
 with tab2:
     st.markdown('<div class="section-title">Forecast Map (November 15, 2020)</div>', unsafe_allow_html=True)
     
-    # --- THE HONEST EXPLANATION ---
     st.markdown("""
     NSW was predicted to be the most warned state, so we decided to focus the app on it showcasing its results. 
     Hover over regions to see the driving factors.<br><br>
@@ -215,7 +214,30 @@ with tab2:
     """, unsafe_allow_html=True)
 
     try:
-        # ... (the rest of your map code stays exactly the same)
+        with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
+            lga_geojson = json.load(f)
+
+        # Update populations manually to fix the log conversion
+        real_populations = {
+            "Tenterfield": "4,066", "Inverell": "16,483", "Moree Plains": "13,159",
+            "Walcha": "3,092", "MidCoast": "90,000", "Tamworth Regional": "59,663",
+            "Upper Hunter Shire": "14,100", "Cessnock": "55,560", "Narrabri": "13,100",
+            "Clarence Valley": "50,000", "Lachlan Valley": "6,000"
+        }
+
+        for feature in lga_geojson['features']:
+            name = feature['properties']['LGA_NAME_2021']
+            
+            # Fix population
+            if name in real_populations:
+                feature['properties']['pop'] = real_populations[name]
+            elif feature['properties'].get('status') == "Low Risk":
+                feature['properties']['pop'] = "N/A (Safe)"
+                
+            # Fill empty no-data regions with navy
+            if feature['properties'].get('status') == "No Data":
+                feature['properties']['color'] = [30, 58, 95, 180]
+                feature['properties']['status'] = "Low Risk"
 
         layer = pdk.Layer(
             "GeoJsonLayer",
