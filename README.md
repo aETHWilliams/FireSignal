@@ -1,5 +1,5 @@
 # FireSignal
-//make this look legit
+#make this look legit
 **Research Question:** Can we use satellite data to anticipate where fire activity will occur next?
 
 ## Overview
