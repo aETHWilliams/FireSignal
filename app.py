@@ -192,11 +192,13 @@ with tab1:
     | Severity model | Predict fire size (FRP) | CV R2 **-0.11** |
     """)
     
-    st.markdown("""
+        st.markdown("""
     <div class="info-box" style="border-left: 4px solid #dc2626;">
-    <b>Conclusion and Limitations:</b> Fire occurrence is measurably influenced by recent nearby fire activity. 
-    However, I also tested whether the system could predict fire <b>severity</b> (size). It performed poorly (CV R2 -0.11). 
-    I report this because understanding the limitations of satellite derived predictions is just as important as understanding their potential.
+    <b>Conclusion and Limitations:</b> A same cell persistence baseline scores 0.807. FireSignal scores 0.854, 
+    showing that neighbouring cell information adds real predictive skill (+0.047 AUC) beyond persistence. 
+    Most of the predictive signal is persistence, and I report that openly. I also tested fire severity prediction, 
+    which failed (CV R2 -0.11) — documented honestly because understanding the limits of satellite data is 
+    as important as understanding its potential.
     </div>
     """, unsafe_allow_html=True)
 
