@@ -142,6 +142,9 @@ with tab2:
     st.markdown("Predicted probability of ignition across South East Queensland and Northern NSW.")
     
     try:
+        import json
+        import pydeck as pdk
+        
         # Load the pre-colored, simplified map directly from GitHub
         with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
             lga_geojson = json.load(f)
@@ -157,11 +160,11 @@ with tab2:
             line_width_min_pixels=0.5,
         )
         
-        # ZOOM INTO QLD/NSW BORDER
-               view_state = pdk.ViewState(
-            latitude=-28.5,   # Centered exactly on the Gold Coast / Tweed border
-            longitude=153.2, 
-            zoom=7.5,         # Zoomed in to show the LGA borders clearly
+        # ZOOM INTO QLD/NSW BORDER (Gold Coast)
+        view_state = pdk.ViewState(
+            latitude=-28.5,
+            longitude=153.2,
+            zoom=7.5,
             pitch=0
         )
         
@@ -187,9 +190,8 @@ with tab2:
         <div style='background:#ffffff;border:1px solid #dbe8f5;border-left:4px solid #2563a8;border-radius:10px;
         padding:1.2rem 1.4rem;margin-top:1.5rem;box-shadow:0 2px 8px rgba(37,99,168,0.05);font-size:0.85rem;
         color:#4a6080;line-height:1.8;'>
-        <b>Validation Note:</b> The model's highest predictions concentrate in Northern NSW, but there is also 
-        distinct risk predicted along the Queensland border. Because you are based on the Gold Coast, you can see 
-        exactly how close the extreme threat zone gets to South East Queensland.
+        <b>Validation Note:</b> The model's highest predictions concentrate in Northern NSW, with distinct risk 
+        predicted along the Queensland border. This view shows exactly how close the extreme threat zone gets to South East Queensland.
         </div>
         """, unsafe_allow_html=True)
         
