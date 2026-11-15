@@ -250,6 +250,7 @@ with tab3:
     """, unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
+    
     with col1:
         st.markdown("""
         <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;
@@ -257,8 +258,13 @@ with tab3:
             <div style='font-family:Sora,sans-serif;font-size:1rem;font-weight:700;color:#1e3a5f;margin-bottom:0.8rem'>
                 Human Associated
             </div>
-            <div style='font-size:0.84rem;color:#4a6080;line-height:1.85;'>
+            <div style='font-size:0.84rem;color:#4a6080;line-height:1.85; margin-bottom: 0.8rem;'>
                 Fires near infrastructure. Ignition probability is higher, but severity remains lower due to rapid suppression response.
+            </div>
+            <div style='background:#f0f4f8;border-radius:8px;padding:0.8rem;font-size:0.8rem;color:#1e3a5f;'>
+                <b>Avg distance to road:</b> 232 metres<br>
+                <b>Avg distance to fire station:</b> 6.5 km<br>
+                <b>Example:</b> Accidental ignitions from vehicles, machinery, or arson near settlements.
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -270,15 +276,20 @@ with tab3:
             <div style='font-family:Sora,sans-serif;font-size:1rem;font-weight:700;color:#1e3a5f;margin-bottom:0.8rem'>
                 Remote / Natural
             </div>
-            <div style='font-size:0.84rem;color:#4a6080;line-height:1.85;'>
+            <div style='font-size:0.84rem;color:#4a6080;line-height:1.85; margin-bottom: 0.8rem;'>
                 Fires in remote areas. These present significant monitoring and response challenges, and are highly correlated with accumulated drought.
+            </div>
+            <div style='background:#f0f4f8;border-radius:8px;padding:0.8rem;font-size:0.8rem;color:#1e3a5f;'>
+                <b>Avg distance to road:</b> 958 metres<br>
+                <b>Avg distance to fire station:</b> 14.2 km<br>
+                <b>Fire size:</b> 5.7x larger on average than human fires.
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("""
-    <div class="info-box" style="border-left: 4px solid #2563a8;">
-    <b>Implication:</b> Standard fire indices treat these as identical. FireSignal provides an additional information layer to distinguish where decision makers may need to allocate resources.
+    <div class="info-box" style="border-left: 4px solid #dc2626;">
+    <b>The Catastrophic Impact:</b> While human activity causes the vast majority of fire ignitions near towns, our analysis of 1,021 fires showed that <b>98% of the largest, most catastrophic fires</b> were lightning associated. Standard fire indices treat these two scenarios as identical. FireSignal provides the data to distinguish them.
     </div>
     """, unsafe_allow_html=True)
 
