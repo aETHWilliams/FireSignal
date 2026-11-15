@@ -151,16 +151,16 @@ with tab1:
     Standard fire models rely on weather. They tell you *"it is hot and dry here, so fire is possible."* 
     But they do not tell you **where** the next fire will start.<br><br>
     
-    My research shows that fire acts like a spreading infection. If a fire is burning in one area today, 
-    the probability of a new fire starting in the neighbouring area tomorrow skyrockets. By adding a feature 
+    My research shows that fire exhibits spatial dependence. If a fire is burning in one area today, 
+    the probability of a new fire starting in the neighbouring area tomorrow increases. By adding a feature 
     that simply asks the model *"Was there a fire next door yesterday?"*, my ability to predict where 
-    the next fire will happen improved dramatically.<br><br>
+    the next fire will happen improved measurably.<br><br>
     
     **The Analogy:** Weather tells you if the grass is dry enough to catch a spark. Spatial dependence tells you 
     where the sparks are currently flying. You need both to predict the next fire.
     """, unsafe_allow_html=True)
 
-    st.markdown("**1. Ablation Test**")
+    st.markdown("**1. Ablation Test (Base vs FireSignal)**")
     st.markdown("""
     To isolate the predictive value of spatial dependence, I compared two identical models:
     
@@ -172,7 +172,22 @@ with tab1:
     A paired bootstrap on identical test rows (2,000 iterations) confirmed that adding the neighbour fire feature improved AUC by **+0.044** (95% CI: +0.041 to +0.047, p < 0.001).
     """)
 
-    st.markdown("**2. Permutation Importance**")
+    st.markdown("**2. Same-Cell Persistence Baseline (The Honest Comparison)**")
+    st.markdown("""
+    A judge will rightly ask: *"Isn't your model just predicting that fires keep burning?"* 
+    So I trained a baseline model using only one feature: *"Was this cell on fire yesterday?"*
+    
+    | Model | Features | AUC |
+    | :--- | :--- | :--- |
+    | **Persistence Baseline** | Same-cell yesterday only | 0.807 |
+    | **FireSignal** | Base + Neighbour Fire | **0.854** |
+    | **Improvement over Persistence** | | **+0.047** |
+    
+    Most of the predictive skill is persistence. But the neighbour feature adds +0.047 AUC beyond it, 
+    showing that the model captures genuine spatial dependence, not just ongoing fires.
+    """)
+
+    st.markdown("**3. Permutation Importance**")
     st.markdown("""
     Rather than relying on default feature importance (which can be biased), I shuffled individual features to measure their exact impact:
     *   Neighbour fire yesterday: **0.144**
@@ -180,7 +195,7 @@ with tab1:
     *   Latitude: 0.067
     """)
 
-    st.markdown("**3. Does the model generalise?**")
+    st.markdown("**4. Does the model generalise?**")
     st.markdown("""
     I stress tested the model to ensure it was not just memorising the 2020 data:
     
@@ -192,7 +207,7 @@ with tab1:
     | Severity model | Predict fire size (FRP) | CV R2 **-0.11** |
     """)
     
-        st.markdown("""
+    st.markdown("""
     <div class="info-box" style="border-left: 4px solid #dc2626;">
     <b>Conclusion and Limitations:</b> A same cell persistence baseline scores 0.807. FireSignal scores 0.854, 
     showing that neighbouring cell information adds real predictive skill (+0.047 AUC) beyond persistence. 
@@ -201,6 +216,16 @@ with tab1:
     as important as understanding its potential.
     </div>
     """, unsafe_allow_html=True)
+
+    # Detailed Evaluation Metrics Expander
+    with st.expander("See detailed evaluation metrics"):
+        st.markdown("""
+        *   **What I predict:** The 24-hour probability of a NASA FIRMS thermal anomaly detection within a 100km grid cell.
+        *   **Positive Event:** Any thermal anomaly detected in the cell on the following day.
+        *   **Ranking vs Calibration:** I optimized for ranking (AUC 0.854). For operational deployment, the raw scores would require calibration (e.g., isotonic regression) to ensure an 80% predicted risk corresponds to an 80% empirical probability.
+        *   **PR-AUC:** 0.543 (Robust metric for imbalanced datasets).
+        *   **Cause Attribution:** The 98% statistic is derived from 1,021 cause-attributed fires (Mulgar dataset).
+        """)
 
     # Detailed Evaluation Metrics Expander
     with st.expander("See detailed evaluation metrics"):
