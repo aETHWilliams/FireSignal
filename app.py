@@ -82,12 +82,18 @@ with tab2:
     # 4. PLOT WITH ACTUAL GEOGRAPHIC BORDERS
     fig, ax = plt.subplots(figsize=(12, 9))
     
-    # Load Natural Earth low-res map (built into geopandas)
-    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-    australia = world[world.name == "Australia"]
-    
-    # Draw the country outline
-    australia.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+    # Fetch Australia GeoJSON directly from the web (no datasets package needed)
+    import urllib.request, json
+    import geopandas as gpd
+    try:
+        url = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson"
+        with urllib.request.urlopen(url) as response:
+            world_data = json.load(response)
+        world = gpd.GeoDataFrame.from_features(world_data['features'])
+        australia = world[world['NAME'] == "Australia"]
+        australia.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+    except Exception as e:
+        st.warning(f"Could not load map background: {e}")
     
     # Filter out zero-risk areas so only active risk zones are plotted
     active_risk = forecast_df[forecast_df['risk'] > 0.15]
