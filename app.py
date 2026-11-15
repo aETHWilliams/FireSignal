@@ -357,9 +357,14 @@ with tab3:
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown("""
+        st.markdown("""
     <div class="info-box" style="border-left: 4px solid #dc2626;">
-    <b>The Catastrophic Impact:</b> While human activity causes the vast majority of fire ignitions near towns, our analysis of 1,021 fires showed that <b>98% of the largest, most catastrophic fires</b> were lightning associated. Standard fire indices treat these two scenarios as identical. FireSignal provides the data to distinguish them.
+    <b>The Catastrophic Impact:</b> While human activity causes more fire ignitions near towns, our analysis of 1,021 cause-attributed fires showed that 
+    <b>lightning-associated fires burn 5.7x larger on average</b> and account for <b>98% of the fires with the highest detection counts</b>. 
+    Standard fire indices treat these two scenarios as identical. FireSignal provides the data to distinguish them.
+    <br><br>
+    <b>Note on fire merging:</b> When two fires approach each other, the model's spatial contagion feature captures the increased risk in the cells between them. 
+    While we don't explicitly model fire merging, our model learns that fires are not isolated, they interact spatially.
     </div>
     """, unsafe_allow_html=True)
 
