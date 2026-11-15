@@ -46,12 +46,14 @@ with tab2:
     st.subheader("Historical Forecast Demonstration (November 15, 2020)")
     st.markdown("Predicted probability of ignition across the Australian grid using historical data.")
     
+    # 1. Create the grid
     lat_grid = np.arange(-44, -9, 1)
     lon_grid = np.arange(113, 155, 1)
     grid_cells = [{'lat_cell': int(lat), 'lon_cell': int(lon)} for lat in lat_grid for lon in lon_grid]
     forecast_df = pd.DataFrame(grid_cells)
     forecast_df['doy'] = pd.to_datetime('2020-11-15').dayofyear
     
+    # 2. Load static features
     sites = pd.read_csv(f"{DRIVE}/sites_with_population.csv")
     sites['lat_cell'] = (sites['latitude'] // 1).astype(int)
     sites['lon_cell'] = (sites['longitude'] // 1).astype(int)
@@ -59,7 +61,7 @@ with tab2:
         'log_population_5km': 'mean', 'dist_to_powerline_km': 'mean'}).reset_index()
 
     kbdi = pd.read_csv(f"{DRIVE}/kbdi_features.csv")
-    fires_meta = pd.read_csv(f"{DRIVE}/fires_signal.csv")
+    fires_meta = pd.read_csv(f"{DRIVE}/fire_signal.csv")
     kbdi = kbdi.merge(fires_meta[['site_id','latitude','longitude']], on='site_id')
     kbdi['lat_cell'] = (kbdi['latitude'] // 1).astype(int)
     kbdi['lon_cell'] = (kbdi['longitude'] // 1).astype(int)
@@ -68,6 +70,7 @@ with tab2:
     forecast_df = forecast_df.merge(sites_agg, on=['lat_cell', 'lon_cell'], how='left')
     forecast_df = forecast_df.merge(kbdi_agg, on=['lat_cell', 'lon_cell'], how='left')
     
+    # 3. Generate Predictions
     FEATURES = base_bundle['features']
     for c in FEATURES:
         if c not in forecast_df.columns:
@@ -76,12 +79,37 @@ with tab2:
 
     forecast_df['risk'] = base_bundle['model'].predict_proba(forecast_df[FEATURES])[:,1]
 
-    fig, ax = plt.subplots(figsize=(10, 8))
-    sc = ax.scatter(forecast_df['lon_cell'], forecast_df['lat_cell'], 
-                    c=forecast_df['risk'], cmap='YlOrRd', s=100, edgecolor='black', alpha=0.9)
-    plt.colorbar(sc, label='Predicted Ignition Probability')
-    ax.set_xlabel('Longitude')
-    ax.set_ylabel('Latitude')
+    # 4. PLOT WITH ACTUAL GEOGRAPHIC BORDERS
+    fig, ax = plt.subplots(figsize=(12, 9))
+    
+    # Load Natural Earth low-res map (built into geopandas)
+    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    australia = world[world.name == "Australia"]
+    
+    # Draw the country outline
+    australia.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+    
+    # Filter out zero-risk areas so only active risk zones are plotted
+    active_risk = forecast_df[forecast_df['risk'] > 0.15]
+    
+    # Plot the risk cells as squares
+    sc = ax.scatter(active_risk['lon_cell'], active_risk['lat_cell'], 
+                    c=active_risk['risk'], cmap='YlOrRd', s=80, 
+                    marker='s', edgecolor='gray', linewidth=0.3, alpha=0.9, zorder=2)
+    
+    plt.colorbar(sc, label='Predicted Ignition Probability', fraction=0.046, pad=0.04)
+    
+    ax.set_xlim(112, 154)
+    ax.set_ylim(-44, -10)
+    ax.set_xlabel('Longitude', fontsize=12)
+    ax.set_ylabel('Latitude', fontsize=12)
+    ax.set_title('FireSignal Risk Forecast - 15 Nov 2020', fontsize=14, pad=15)
+    
+    # Clean up the axis borders
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.grid(True, linestyle='--', alpha=0.3, zorder=0)
+    
     st.pyplot(fig)
 
 with tab3:
