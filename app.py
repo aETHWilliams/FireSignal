@@ -139,48 +139,41 @@ with tab1:
 
 with tab2:
     st.markdown('<div class="section-title">Historical Forecast Demonstration (November 15, 2020)</div>', unsafe_allow_html=True)
-    st.markdown("Predicted probability of ignition across South East Queensland and Northern NSW.")
+    st.markdown("Predicted probability of ignition across the entire Australian continent. Hover over any grid cell to see the driving factors.")
     
     try:
         import json
         import pydeck as pdk
         
-        # Load the map
-        with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
-            lga_geojson = json.load(f)
-
-        # Ensure any areas that aren't red/orange/yellow are colored Blue (Low Risk)
-        for feature in lga_geojson['features']:
-            if feature['properties']['status'] == "No Data":
-                feature['properties']['color'] = [37, 99, 168, 150] # Blue
-                feature['properties']['status'] = "Low Risk"
+        # Load the national squares map
+        with open(f"{DRIVE}/full_australia_squares.geojson", "r") as f:
+            grid_geojson = json.load(f)
 
         layer = pdk.Layer(
             "GeoJsonLayer",
-            lga_geojson,
+            grid_geojson,
             pickable=True,
-            stroked=True,
+            stroked=False,
             filled=True,
             get_fill_color="properties.color",
-            get_line_color=[255, 255, 255, 100],
-            line_width_min_pixels=0.5,
+            opacity=0.8,
         )
         
-        # Zoom directly over the Gold Coast and Northern NSW border
+        # Zoom out to show all of Australia
         view_state = pdk.ViewState(
-            latitude=-28.2,
-            longitude=153.2,
-            zoom=7.8,
+            latitude=-27.0,
+            longitude=134.0,
+            zoom=3.5,
             pitch=0
         )
         
         tooltip = {
-            "html": "<b>{LGA_NAME_2021}</b><br/>"
+            "html": "<b>{name}</b><br/>"
                     "Status: <b>{status}</b><br/>"
                     "Predicted Risk: <b>{risk_val}</b><br/><hr style='margin:4px 0; border-color:#4a6080'>"
                     "<b>Driving Factors:</b><br/>"
                     "Drought (KBDI): {kbdi}<br/>"
-                    "Total LGA Population: {pop}<br/>"
+                    "Population (approx): {pop}<br/>"
                     "Dist to Powerline: {power}",
             "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "12px", "padding": "10px", "borderRadius": "6px", "width": "250px"}
         }
@@ -191,16 +184,6 @@ with tab2:
             tooltip=tooltip,
             map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
         ))
-        
-        st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-left:4px solid #2563a8;border-radius:10px;
-        padding:1.2rem 1.4rem;margin-top:1.5rem;box-shadow:0 2px 8px rgba(37,99,168,0.05);font-size:0.85rem;
-        color:#4a6080;line-height:1.8;'>
-        <b>Validation Note:</b> The model correctly identifies a sharp boundary of risk along the NSW/QLD border. 
-        The Gold Coast is predicted as <b>Low Risk</b> (Blue) due to coastal humidity and rainfall, while just 50km south, the Northern NSW 
-        region is predicted as <b>Extreme Risk</b> (Red) due to severe drought (high KBDI) and remote fuel loads.
-        </div>
-        """, unsafe_allow_html=True)
         
     except Exception as e:
         st.error(f"Map Error: {e}")
