@@ -138,16 +138,16 @@ with tab1:
 
 with tab2:
     st.markdown('<div class="section-title">Historical Forecast Demonstration (November 15, 2020)</div>', unsafe_allow_html=True)
-    st.markdown("Predicted probability of ignition across the Australian grid using historical data.")
+    st.markdown("Predicted probability of ignition across Australian geographic regions.")
     
-    # 1. Generate the grid
+    # 1. Generate the model grid
     lat_grid = np.arange(-44, -9, 1)
     lon_grid = np.arange(113, 155, 1)
     grid_cells = [{'lat_cell': float(lat), 'lon_cell': float(lon)} for lat in lat_grid for lon in lon_grid]
     forecast_df = pd.DataFrame(grid_cells)
     forecast_df['doy'] = pd.to_datetime('2020-11-15').dayofyear
     
-    # 2. Load features
+    # 2. Load static features
     sites['lat_cell'] = (sites['latitude'] // 1).astype(int)
     sites['lon_cell'] = (sites['longitude'] // 1).astype(int)
     sites_agg = sites.groupby(['lat_cell', 'lon_cell']).agg({
@@ -169,51 +169,94 @@ with tab2:
         forecast_df[c] = forecast_df[c].fillna(forecast_df[c].median())
 
     forecast_df['risk'] = base_bundle['model'].predict_proba(forecast_df[FEATURES])[:,1]
+    forecast_df['risk_pct'] = (forecast_df['risk'] * 100).round(1)
 
-    # 4. Render using PyDeck for a professional look
-    # Filter out low risk and create a color column
-    active_risk = forecast_df[forecast_df['risk'] > 0.15].copy()
+    # 4. CREATE THE CHOROPLETH MAP
+    # Fetch Australia SA4 GeoJSON (High res, actual shapes)
+    url = "https://raw.githubusercontent.com/rowanhogan/australian-states/master/states.geojson"
     
-    # PyDeck requires RGBA arrays for colors
-    def get_color(risk):
-        if risk > 0.75: return [220, 38, 38, 220] # Deep Red
-        if risk > 0.50: return [234, 88, 12, 200]  # Orange
-        if risk > 0.30: return [234, 179, 8, 180]  # Yellow
-        return [37, 99, 168, 120]                  # Blue (Low risk)
+    try:
+        import requests
+        with urllib.request.urlopen(url) as response:
+            aus_geojson = json.load(response)
+            
+        # To color the shapes, we need to calculate the average risk inside each shape.
+        # We will do a simple point-in-polygon check using geopandas.
+        import geopandas as gpd
+        from shapely.geometry import Point
         
-    active_risk['color'] = active_risk['risk'].apply(get_color)
-    active_risk['lat_center'] = active_risk['lat_cell'] + 0.5
-    active_risk['lon_center'] = active_risk['lon_cell'] + 0.5
+        # Load the actual polygons
+        aus_gdf = gpd.GeoDataFrame.from_features(aus_geojson['features'])
+        
+        # Convert our predictions to a GeoDataFrame
+        geometry = [Point(xy) for xy in zip(forecast_df['lon_cell'], forecast_df['lat_cell'])]
+        pred_gdf = gpd.GeoDataFrame(forecast_df, geometry=geometry, crs="EPSG:4326")
+        
+        # Spatial join: find which state each grid cell falls into
+        joined = gpd.sjoin(pred_gdf, aus_gdf, how='inner', predicate='within')
+        
+        # Calculate the mean risk per state/region
+        region_risk = joined.groupby('STE_NAME16')['risk'].mean().reset_index()
+        
+        # Merge that risk back into the GeoJSON properties
+        for feature in aus_geojson['features']:
+            region_name = feature['properties']['STE_NAME16']
+            match = region_risk[region_risk['STE_NAME16'] == region_name]
+            risk_val = float(match['risk'].values[0]) if len(match) > 0 else 0.0
+            feature['properties']['risk_val'] = risk_val
+            
+            # Assign a color based on risk
+            if risk_val > 0.7:
+                feature['properties']['color'] = [220, 38, 38, 200] # Deep Red
+                feature['properties']['status'] = "Extreme Risk"
+            elif risk_val > 0.5:
+                feature['properties']['color'] = [234, 88, 12, 200] # Orange
+                feature['properties']['status'] = "High Risk"
+            elif risk_val > 0.3:
+                feature['properties']['color'] = [234, 179, 8, 200] # Yellow
+                feature['properties']['status'] = "Moderate Risk"
+            else:
+                feature['properties']['color'] = [37, 99, 168, 150] # Blue
+                feature['properties']['status'] = "Low Risk"
 
-    layer = pdk.Layer(
-        "ScatterplotLayer",
-        active_risk,
-        get_position=["lon_center", "lat_center"],
-        get_fill_color="color",
-        get_radius=45000, # 45km radius to cover the 1-degree grid
-        pickable=True,
-        opacity=0.8,
-        stroked=False,
-    )
+        # Render with PyDeck GeoJsonLayer
+        layer = pdk.Layer(
+            "GeoJsonLayer",
+            aus_geojson,
+            pickable=True,
+            stroked=True,
+            filled=True,
+            get_fill_color="properties.color",
+            get_line_color=[255, 255, 255, 100],
+            line_width_min_pixels=1,
+        )
+        
+        view_state = pdk.ViewState(latitude=-27.0, longitude=134.0, zoom=3.5, pitch=0)
+        
+        tooltip = {
+            "html": "<b>{STE_NAME16}</b><br/>Status: <b>{status}</b><br/>Avg Risk: {risk_val}",
+            "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "13px", "padding": "8px", "borderRadius": "6px"}
+        }
 
-    view_state = pdk.ViewState(
-        latitude=-27.0,
-        longitude=134.0,
-        zoom=3.5,
-        pitch=0,
-    )
-
-    tooltip = {
-        "html": "<b>Grid Cell</b><br/>Lat: {lat_cell}<br/>Lon: {lon_cell}<br/><b>Risk: {risk}</b>",
-        "style": {"backgroundColor": "#1e3a5f", "color": "white"}
-    }
-
-    st.pydeck_chart(pdk.Deck(
-        layers=[layer],
-        initial_view_state=view_state,
-        tooltip=tooltip,
-        map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-    ))
+        st.pydeck_chart(pdk.Deck(
+            layers=[layer],
+            initial_view_state=view_state,
+            tooltip=tooltip,
+            map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+        ))
+        
+        st.markdown("""
+        <div style='background:#ffffff;border:1px solid #dbe8f5;border-left:4px solid #2563a8;border-radius:10px;
+        padding:1.2rem 1.4rem;margin-top:1.5rem;box-shadow:0 2px 8px rgba(37,99,168,0.05);font-size:0.85rem;
+        color:#4a6080;line-height:1.8;'>
+        <b>How to read this map:</b> We have calculated the mean ignition probability across all 100km grid cells inside each state. 
+        Regions highlighted in <b style="color:#dc2626">red</b> have the highest average spatial and temporal dependence on recent fire activity, 
+        while <b style="color:#2563a8">blue</b> regions indicate lower ignition probability.
+        </div>
+        """, unsafe_allow_html=True)
+        
+    except Exception as e:
+        st.error(f"Could not generate the map: {e}")
 
 with tab3:
     st.markdown('<div class="section-title">Fire Regime Analysis</div>', unsafe_allow_html=True)
