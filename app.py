@@ -92,7 +92,7 @@ st.markdown("""
             <li><b>More than 3,000 houses</b> were destroyed.</li>
             <li>An estimated <b>3 billion animals</b> were killed or displaced.</li>
         </ul>
-        <b style='color: #1e3a5f;'>We have the data. We have the technology. We need to do better.</b>
+        <b style='color: #1e3a5f;'>I have the data. I have the technology. We need to do better.</b>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -134,7 +134,7 @@ additional predictive information about where fire activity will occur next, dri
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2, tab3, tab4 = st.tabs(["How I Tested It", "Forecast Map", "Where Fires Start", "Data and Limitations"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["How I Tested It", "Forecast Map", "Where Fires Start", "Highest Risk LGAs", "Data and Limitations"])
 
 with tab1:
     st.markdown('<div class="section-title">How I Tested It</div>', unsafe_allow_html=True)
@@ -217,7 +217,7 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
 
-    # Detailed Evaluation Metrics Expander (SINGLE COPY)
+    # Detailed Evaluation Metrics Expander
     with st.expander("See detailed evaluation metrics"):
         st.markdown("""
         *   **What I predict:** The 24-hour probability of a NASA FIRMS thermal anomaly detection within a 100km grid cell.
@@ -412,6 +412,48 @@ While I don't explicitly model fire merging, the model learns that fires are not
 """, unsafe_allow_html=True)
 
 with tab4:
+    st.markdown('<div class="section-title">Highest Risk LGAs (15 Nov 2020)</div>', unsafe_allow_html=True)
+    st.markdown("Hover over the map on the Forecast Map tab to see these LGAs in context. This table ranks the highest risk Local Government Areas by predicted probability.")
+    
+    try:
+        with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
+            lga_geojson = json.load(f)
+            
+        top_lgas = []
+        for feature in lga_geojson['features']:
+            name = feature['properties']['LGA_NAME_2021']
+            risk_str = feature['properties'].get('risk_val', '0%').replace('%', '')
+            kbdi_str = feature['properties'].get('kbdi', 'N/A')
+            pop_str = feature['properties'].get('pop', 'N/A')
+            try:
+                risk_val = float(risk_str)
+            except:
+                risk_val = 0.0
+                
+            if risk_val > 0:
+                top_lgas.append({
+                    'LGA': name, 
+                    'Risk (%)': risk_val,
+                    'Drought (KBDI)': kbdi_str,
+                    'Population': pop_str
+                })
+                
+        top_df = pd.DataFrame(top_lgas).sort_values(by='Risk (%)', ascending=False).head(30)
+        top_df.index = range(1, len(top_df) + 1)
+        top_df.index.name = 'Rank'
+        
+        st.dataframe(top_df, use_container_width=True, height=600)
+        
+        st.markdown("""
+        <div class="info-box" style="border-left: 4px solid #2563a8; margin-top: 1.5rem;">
+        <b>Reading this table:</b> The <b>Risk (%)</b> column is the model's predicted probability that a NASA FIRMS thermal anomaly will occur in that LGA's grid cells on 15 November 2020. The <b>Drought (KBDI)</b> and <b>Population</b> columns show the key drivers. A high KBDI (above 150) indicates severe drought conditions. A low population indicates a remote fire risk (harder to fight, more likely lightning-caused).
+        </div>
+        """, unsafe_allow_html=True)
+        
+    except Exception as e:
+        st.warning(f"Could not load top LGA table: {e}")
+
+with tab5:
     st.markdown('<div class="section-title">Data and Limitations</div>', unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
@@ -462,7 +504,7 @@ with tab4:
         </div>
         """, unsafe_allow_html=True)
 
-    # Add this at the very bottom of tab4
+    # Add this at the very bottom of tab5
     st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
     
     with st.expander("View Technical Caveats & Model Boundaries"):
@@ -471,5 +513,4 @@ with tab4:
         *   **Persistence vs. Discovery:** While the neighbour fire feature captures some fire persistence (ongoing fires), it also captures genuine new ignitions. A model trained only on *new* ignitions still achieved an AUC of 0.697.
         *   **The 98% Statistic:** This is based on 1,021 cause attributed fires (Mulgar dataset). The "highest detection-count category" is defined as the top 10% of fires by nearby FIRMS detections (≥229 detections within 11km and 7 days).
         *   **Probability Calibration:** The model is optimised for ranking (AUC), not absolute calibration. An 83.6% risk means the cell ranks highly, not that there is an 83.6% exact chance of fire. Operational use requires isotonic regression.
-        *   **Agency Use:** I have not tested this with AFAC or NSW RFS. It is a research prototype intended to show what is possible with harmonised NASA data.
-        """)
+        *   **Agency Use:** I have not tested this with AFAC or NSW RFS. It is a
