@@ -138,67 +138,83 @@ with tab1:
 
 with tab2:
     st.markdown('<div class="section-title">Historical Forecast Demonstration (November 15, 2020)</div>', unsafe_allow_html=True)
-    st.markdown("Predicted probability of ignition across Australian states. Hover over regions to see the driving factors.")
+    st.markdown("Predicted probability of ignition across Australian LGAs. Hover over regions to see the driving factors.")
     
     try:
-        import urllib.request, json
+        import json
         import pydeck as pdk
         
-        # 1. Load the state-level map (small, reliable file)
-        url = "https://raw.githubusercontent.com/rowanhogan/australian-states/master/states.geojson"
-        with urllib.request.urlopen(url) as response:
-            aus_geojson = json.load(response)
+        # 1. Load the simplified map (from your GitHub repo)
+        with open(f"{DRIVE}/australia_lga_simplified.geojson", "r") as f:
+            lga_geojson = json.load(f)
             
-        # 2. Define risk per state based on your model's LGA findings
-        # (We use the highest LGA risk found in each state as the state-level signal)
-        state_risk = {
-            "New South Wales": 0.85,
-            "Victoria": 0.60,
-            "Queensland": 0.70,
-            "Western Australia": 0.45,
-            "South Australia": 0.40,
-            "Tasmania": 0.30,
-            "Northern Territory": 0.55,
-            "Australian Capital Territory": 0.20
-        }
+        # 2. Load the risk predictions
+        lga_risk = pd.read_csv(f"{DRIVE}/lga_risk_full.csv")
         
-        # 3. Color and tooltip logic
-        for feature in aus_geojson['features']:
-            state_name = feature['properties'].get('STATE_NAME', 'Unknown')
-            risk_val = state_risk.get(state_name, 0.0)
+        # 3. Loop through the map features and color them based on our data
+        for feature in lga_geojson['features']:
+            # The simplified file uses 'SA2_NAME' or similar, we need to match it
+            # Fallback to checking for 'LGA_NAME_2021' or 'NAME'
+            props = feature['properties']
+            region_name = props.get('LGA_NAME_2021', props.get('SA2_NAME', props.get('name', 'Unknown')))
             
-            feature['properties']['risk_val'] = f"{risk_val*100:.0f}%"
+            feature['properties']['LGA_NAME'] = region_name
             
-            if risk_val > 0.75:
-                feature['properties']['color'] = [220, 38, 38, 200] # Red
-                feature['properties']['status'] = "Extreme Risk"
-            elif risk_val > 0.60:
-                feature['properties']['color'] = [234, 88, 12, 200] # Orange
-                feature['properties']['status'] = "High Risk"
-            elif risk_val > 0.40:
-                feature['properties']['color'] = [234, 179, 8, 200] # Yellow
-                feature['properties']['status'] = "Moderate Risk"
+            match = lga_risk[lga_risk['LGA_NAME'] == region_name]
+            
+            if len(match) > 0:
+                row = match.iloc[0]
+                risk_val = float(row['risk'])
+                
+                feature['properties']['risk_val'] = f"{risk_val*100:.1f}%"
+                feature['properties']['kbdi'] = f"{row['kbdi_max']} (High Drought)"
+                feature['properties']['pop'] = f"{int(row['pop_5km']):,} people"
+                feature['properties']['power'] = f"{int(row['dist_power'])} km"
+                
+                if risk_val > 0.75:
+                    feature['properties']['color'] = [220, 38, 38, 220] # Red
+                    feature['properties']['status'] = "Extreme Risk"
+                elif risk_val > 0.60:
+                    feature['properties']['color'] = [234, 88, 12, 220] # Orange
+                    feature['properties']['status'] = "High Risk"
+                elif risk_val > 0.40:
+                    feature['properties']['color'] = [234, 179, 8, 220] # Yellow
+                    feature['properties']['status'] = "Moderate Risk"
+                else:
+                    feature['properties']['color'] = [37, 99, 168, 180] # Blue
+                    feature['properties']['status'] = "Low Risk"
             else:
-                feature['properties']['color'] = [37, 99, 168, 150] # Blue
-                feature['properties']['status'] = "Low Risk"
+                feature['properties']['risk_val'] = "N/A"
+                feature['properties']['kbdi'] = "N/A"
+                feature['properties']['pop'] = "N/A"
+                feature['properties']['power'] = "N/A"
+                feature['properties']['color'] = [60, 70, 85, 150] # Dark Grey
+                feature['properties']['status'] = "No Prediction Data"
 
-        # 4. Render with PyDeck
+        # 4. Render
         layer = pdk.Layer(
             "GeoJsonLayer",
-            aus_geojson,
+            lga_geojson,
             pickable=True,
             stroked=True,
             filled=True,
             get_fill_color="properties.color",
             get_line_color=[255, 255, 255, 100],
-            line_width_min_pixels=1,
+            line_width_min_pixels=0.5,
         )
         
-        view_state = pdk.ViewState(latitude=-27.0, longitude=134.0, zoom=3.5, pitch=0)
+        # Zoom into the east coast where the fires are
+        view_state = pdk.ViewState(latitude=-32.0, longitude=151.0, zoom=4.5, pitch=0)
         
         tooltip = {
-            "html": "<b>{STATE_NAME}</b><br/>Status: <b>{status}</b><br/>Predicted Risk: {risk_val}",
-            "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "13px", "padding": "8px", "borderRadius": "6px"}
+            "html": "<b>{LGA_NAME}</b><br/>"
+                    "Status: <b>{status}</b><br/>"
+                    "Predicted Risk: <b>{risk_val}</b><br/><hr style='margin:4px 0; border-color:#4a6080'>"
+                    "<b>Driving Factors:</b><br/>"
+                    "Drought (KBDI): {kbdi}<br/>"
+                    "Population within 5km: {pop}<br/>"
+                    "Distance to Powerline: {power}",
+            "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "12px", "padding": "10px", "borderRadius": "6px", "width": "250px"}
         }
 
         st.pydeck_chart(pdk.Deck(
@@ -207,14 +223,6 @@ with tab2:
             tooltip=tooltip,
             map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
         ))
-        
-        st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-left:4px solid #2563a8;border-radius:10px;
-        padding:1.2rem 1.4rem;margin-top:1.5rem;box-shadow:0 2px 8px rgba(37,99,168,0.05);font-size:0.85rem;
-        color:#4a6080;line-height:1.8;'>
-        <b>Validation Note:</b> The model's highest predictions concentrate in New South Wales, aligning with the regions severely impacted by the 2019-2020 Black Summer bushfires.
-        </div>
-        """, unsafe_allow_html=True)
         
     except Exception as e:
         st.error(f"Map Error: {e}")
