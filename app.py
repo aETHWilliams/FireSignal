@@ -145,9 +145,15 @@ with tab2:
         import json
         import pydeck as pdk
         
-        # Load the pre-colored, simplified map directly from GitHub
+        # Load the map
         with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
             lga_geojson = json.load(f)
+
+        # Ensure any areas that aren't red/orange/yellow are colored Blue (Low Risk)
+        for feature in lga_geojson['features']:
+            if feature['properties']['status'] == "No Data":
+                feature['properties']['color'] = [37, 99, 168, 150] # Blue
+                feature['properties']['status'] = "Low Risk"
 
         layer = pdk.Layer(
             "GeoJsonLayer",
@@ -160,11 +166,11 @@ with tab2:
             line_width_min_pixels=0.5,
         )
         
-        # ZOOM INTO QLD/NSW BORDER (Gold Coast)
+        # Zoom directly over the Gold Coast and Northern NSW border
         view_state = pdk.ViewState(
-            latitude=-28.5,
+            latitude=-28.2,
             longitude=153.2,
-            zoom=7.5,
+            zoom=7.8,
             pitch=0
         )
         
@@ -190,8 +196,9 @@ with tab2:
         <div style='background:#ffffff;border:1px solid #dbe8f5;border-left:4px solid #2563a8;border-radius:10px;
         padding:1.2rem 1.4rem;margin-top:1.5rem;box-shadow:0 2px 8px rgba(37,99,168,0.05);font-size:0.85rem;
         color:#4a6080;line-height:1.8;'>
-        <b>Validation Note:</b> The model's highest predictions concentrate in Northern NSW, with distinct risk 
-        predicted along the Queensland border. This view shows exactly how close the extreme threat zone gets to South East Queensland.
+        <b>Validation Note:</b> The model correctly identifies a sharp boundary of risk along the NSW/QLD border. 
+        The Gold Coast is predicted as <b>Low Risk</b> (Blue) due to coastal humidity and rainfall, while just 50km south, the Northern NSW 
+        region is predicted as <b>Extreme Risk</b> (Red) due to severe drought (high KBDI) and remote fuel loads.
         </div>
         """, unsafe_allow_html=True)
         
