@@ -225,9 +225,9 @@ with tab2:
         )
         
         view_state = pdk.ViewState(
-            latitude=-27.0,
-            longitude=134.0,
-            zoom=3.5,
+            latitude=-30.0,
+            longitude=151.5,
+            zoom=5.5,
             pitch=0
         )
         
@@ -235,9 +235,9 @@ with tab2:
             "html": "<b>{LGA_NAME_2021}</b><br/>"
                     "Status: <b>{status}</b><br/>"
                     "Predicted Risk: <b>{risk_val}</b><br/><hr style='margin:4px 0; border-color:#4a6080'>"
-                    "<b>Driving Factors:</b><br/>"
+                    "<b>Model Inputs:</b><br/>"
                     "Drought (KBDI): {kbdi}<br/>"
-                    "Total LGA Population: {pop}<br/>"
+                    "Population (5km): {pop}<br/>"
                     "Dist to Powerline: {power}",
             "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "12px", "padding": "10px", "borderRadius": "6px", "width": "250px"}
         }
@@ -249,10 +249,18 @@ with tab2:
             map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
         ))
         
+        # --- NEW LEGEND / EXPLANATION ---
         st.markdown("""
-        <div class="info-box" style="border-left: 4px solid #2563a8;">
-        <b>Validation Note:</b> The model correctly predicts Extreme Risk (Red) concentrated in Northern NSW, 
-        aligning exactly with the 2019-2020 Black Summer. The rest of the country is predicted as Low Risk.
+        <div class="info-box" style="border-left: 4px solid #dc2626; margin-top: 1.5rem;">
+        <b>How to read this map:</b> The model does not rely on just one factor. 
+        The tooltips show the three primary inputs that drive the prediction:
+        <ul style='margin-top: 0.5rem; margin-bottom: 0.5rem;'>
+            <li><b>Drought (KBDI):</b> How dry the soil and fuel are (0 to 203 scale).</li>
+            <li><b>Population (5km):</b> A proxy for human activity and potential ignition sources.</li>
+            <li><b>Distance to Powerline:</b> A proxy for human infrastructure.</li>
+        </ul>
+        In remote areas like <b>Tenterfield</b>, the drought (KBDI 195) is extreme, but the population is zero, so the model flags it as a lightning-ignition risk. 
+        In areas closer to the coast, the same drought combines with human activity to create a different type of risk.
         </div>
         """, unsafe_allow_html=True)
         
