@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- CUSTOM CSS  lad---
+# --- CUSTOM CSS ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Sora:wght@400;600;700&display=swap');
@@ -78,7 +78,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- THE BLACK SUMMER IMPACT BLOCK MATE ---
+# --- THE BLACK SUMMER IMPACT BLOCK ---
 st.markdown("""
 <div style='background:#ffffff; border-left: 6px solid #dc2626; border-radius: 10px; padding: 1.5rem 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(220,38,38,0.1);'>
     <div style='font-family: Sora, sans-serif; font-size: 1.1rem; font-weight: 700; color: #dc2626; margin-bottom: 0.8rem;'>
@@ -182,7 +182,7 @@ with tab1:
 
     st.markdown("**3. Does the model generalise?**")
     st.markdown("""
-    I stress tested the model to ensure it was not just memorising the 2020 data
+    I stress tested the model to ensure it was not just memorising the 2020 data:
     
     | Validation Test | Description | Result |
     | :--- | :--- | :--- |
@@ -192,7 +192,7 @@ with tab1:
     | Severity model | Predict fire size (FRP) | CV R2 **-0.11** |
     """)
     
-      st.markdown("""
+    st.markdown("""
     <div class="info-box" style="border-left: 4px solid #dc2626;">
     <b>Conclusion and Limitations:</b> Fire occurrence is measurably influenced by recent nearby fire activity. 
     However, I also tested whether the system could predict fire <b>severity</b> (size). It performed poorly (CV R2 -0.11). 
@@ -200,7 +200,7 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
 
-    # NEW: Detailed Evaluation Metrics Expander
+    # Detailed Evaluation Metrics Expander
     with st.expander("See detailed evaluation metrics"):
         st.markdown("""
         *   **What I predict:** The 24-hour probability of a NASA FIRMS thermal anomaly detection within a 100km grid cell.
@@ -209,8 +209,6 @@ with tab1:
         *   **PR-AUC:** 0.543 (Robust metric for imbalanced datasets).
         *   **Cause Attribution:** The 98% statistic is derived from 1,021 cause-attributed fires (Mulgar dataset).
         """)
-
-with tab2:
 
 with tab2:
     st.markdown('<div class="section-title">Forecast Map (November 15, 2020)</div>', unsafe_allow_html=True)
@@ -222,14 +220,14 @@ with tab2:
     <span style="font-size:0.8rem; color:#6b8cae;"><i>Note on map boundaries: Streamlit Community Cloud has strict memory limits. 
     To keep the app fast and responsive, I have used a simplified spatial projection of the LGA boundaries. 
     This causes slight visual distortions in the proportions of the largest LGAs. A production deployment on a dedicated server 
-    would render the full resolution 44MB GeoJSON.</i></span>
+    would render the full-resolution 44MB GeoJSON.</i></span>
     """, unsafe_allow_html=True)
 
     try:
         with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
             lga_geojson = json.load(f)
 
-        # upd pop manually to fix the log conversion
+        # Update populations manually to fix the log conversion
         real_populations = {
             "Tenterfield": "4,066", "Inverell": "16,483", "Moree Plains": "13,159",
             "Walcha": "3,092", "MidCoast": "90,000", "Tamworth Regional": "59,663",
@@ -371,11 +369,10 @@ with tab3:
         </div>
         """, unsafe_allow_html=True)
 
-    # SADD dog spacer to create the 50/50 alignment for the bot box
+    # Spacer to create the 50/50 alignment for the bottom box
     st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
 
-    # singo wide white box for the combined narrative
-    # NO INDENT ON HTML TAGZ
+    # Single wide white box for the combined narrative
     st.markdown("""
 <div style='background:#ffffff; border:1px solid #dbe8f5; border-left: 6px solid #dc2626; border-radius:12px; padding:1.6rem 2rem; margin-top: 1.5rem; box-shadow: 0 2px 8px rgba(37,99,168,0.06);'>
 
@@ -384,9 +381,9 @@ The Catastrophic Impact
 </div>
 
 <div style='font-size:0.88rem; color:#4a6080; line-height:1.9;'>
-While human activity causes more fire ignitions near towns, my analysis of 1,021 cause attributed fires showed that 
-<b>lightning associated fires showed substantially higher detection count-based fire size proxies</b> and account for 
-<b>98% of the fires in the highest detection count category</b>. 
+While human activity causes more fire ignitions near towns, my analysis of 1,021 cause-attributed fires showed that 
+<b>lightning-associated fires showed substantially higher detection-count-based fire-size proxies</b> and account for 
+<b>98% of the fires in the highest detection-count category</b>. 
 Standard fire indices treat these two scenarios as identical. FireSignal provides the data to distinguish them.
 <br><br>
 
@@ -397,24 +394,6 @@ While I don't explicitly model fire merging, the model learns that fires are not
 </div>
 """, unsafe_allow_html=True)
 
-    with col2:
-        st.markdown("### Future Improvements")
-        st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
-            <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
-                <li><b>Live API Integration (Short-term):</b> Connect to a live daily API pulling the last 24 hours of NASA FIRMS data and Open-Meteo forecasts to generate an automated 6:00 AM morning briefing map.</li>
-                <li><b>Live Weather Forecasts (Short-term):</b> Replace the historical day-of-year proxy with actual 7-day forecasts from the Bureau of Meteorology or Open-Meteo to predict fire risk up to a week in advance.</li>
-                <li><b>Higher Resolution Grid (Medium-term):</b> Downscale from 100km cells to 25km or 10km cells. This is crucial for local councils who need to know which specific valleys or ridges are at risk.</li>
-                <li><b>Fuel Moisture via NASA SMAP (Medium-term):</b> Replace the mathematical proxy with direct satellite measurements from the SMAP mission for a physical measurement of vegetation dryness.</li>
-                <li><b>Burned Area Integration (Medium-term):</b> Integrate NASA's MCD64A1 product to distinguish between briefly detected fires and fires that actually consumed large areas.</li>
-                <li><b>Indigenous Fire Management Integration (Long-term):</b> Integrate data on prescribed burns and cultural fire practices to distinguish between unplanned bushfires and planned hazard reduction burns.</li>
-                <li><b>Infrastructure Vulnerability Modeling (Long-term):</b> Overlay the fire risk map with critical infrastructure (powerlines, hospitals, evacuation routes) to show what essential services are at risk.</li>
-                <li><b>Live Satellite Fusion (Long-term):</b> Integrate geostationary satellites (like Himawari-8/9) which update every 10 minutes, alongside MODIS and VIIRS, to detect new fire fronts in near real-time.</li>
-                <li><b>Agent-Based Simulation (Long-term):</b> Run thousands of "what-if" scenarios to help fire agencies plan evacuation routes and resource allocation.</li>
-                <li><b>National Scale Deployment (Long-term):</b> Deploy on a dedicated cloud server (e.g., Azure or Google Cloud) and integrate directly with AFAC systems.</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
 with tab4:
     st.markdown('<div class="section-title">Data and Limitations</div>', unsafe_allow_html=True)
     
