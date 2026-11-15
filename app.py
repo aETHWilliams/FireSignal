@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- customccs and shit ---
+# --- CUSTOM CSS  lad---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Sora:wght@400;600;700&display=swap');
@@ -78,21 +78,21 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- black summer impaxct box ---
+# --- THE BLACK SUMMER IMPACT BLOCK MATE ---
 st.markdown("""
 <div style='background:#ffffff; border-left: 6px solid #dc2626; border-radius: 10px; padding: 1.5rem 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(220,38,38,0.1);'>
     <div style='font-family: Sora, sans-serif; font-size: 1.1rem; font-weight: 700; color: #dc2626; margin-bottom: 0.8rem;'>
         Trained on the data from the 2019-2020 Black Summer.
     </div>
     <div style='font-size: 0.9rem; color: #4a6080; line-height: 1.8;'>
-        We built this model using the lessons from Australia's most catastrophic fire season. The human cost was devastating:
+        I built this model using the lessons from Australia's most catastrophic fire season. The human cost was devastating:
         <ul style='margin-top: 0.5rem; margin-bottom: 0.8rem;'>
             <li><b>33 people</b> lost their lives.</li>
             <li><b>Over 17 to 24 million hectares</b> of land burned.</li>
             <li><b>More than 3,000 houses</b> were destroyed.</li>
             <li>An estimated <b>3 billion animals</b> were killed or displaced.</li>
         </ul>
-        <b style='color: #1e3a5f;'>We have the data. We have the technology. We need to do better.</b>
+        <b style='color: #1e3a5f;'>I have the data. I have the technology. We need to do better.</b>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -129,7 +129,7 @@ It acts as a triage map, identifying where attention may be needed most urgently
 
 <div style='font-size:0.82rem; color:#1e3a5f; font-family:Sora,sans-serif; font-weight:600; margin-bottom:0.4rem'>Why This Matters</div>
 <div style='font-size:0.78rem; color:#4a6080; line-height:1.8; margin-bottom:1.2rem'>
-Standard indices indicate when conditions are dangerous. FireSignal shows that harmonised satellite observations contain 
+Standard indices indicate when conditions are dangerous. My research shows that harmonised satellite observations contain 
 additional predictive information about where fire activity will occur next, driven by spatial and temporal dependence.
 </div>
 """, unsafe_allow_html=True)
@@ -153,7 +153,7 @@ with tab1:
     
     My research shows that fire acts like a spreading infection. If a fire is burning in one area today, 
     the probability of a new fire starting in the neighbouring area tomorrow skyrockets. By adding a feature 
-    that simply asks the model *"Was there a fire next door yesterday?"*, the ability to predict where 
+    that simply asks the model *"Was there a fire next door yesterday?"*, my ability to predict where 
     the next fire will happen improved dramatically.<br><br>
     
     **The Analogy:** Weather tells you if the grass is dry enough to catch a spark. Spatial dependence tells you 
@@ -359,30 +359,31 @@ with tab3:
         </div>
         """, unsafe_allow_html=True)
 
-    # Spacer to create the 50/50 alignment for the bottom box
+    # SADD Spacer to create the 50/50 alignment for the bottom box
     st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
 
     # Single wide white box for the combined narrative
+    # NO INDENT ON HTML TAGZ
     st.markdown("""
-    <div style='background:#ffffff; border:1px solid #dbe8f5; border-left: 6px solid #dc2626; border-radius:12px; padding:1.6rem 2rem; margin-top: 1.5rem; box-shadow: 0 2px 8px rgba(37,99,168,0.06);'>
-        
-        <div style='font-family:Sora,sans-serif; font-size:1rem; font-weight:700; color:#1e3a5f; margin-bottom: 1rem;'>
-            The Catastrophic Impact
-        </div>
-        
-        <div style='font-size:0.88rem; color:#4a6080; line-height:1.9;'>
-            While human activity causes more fire ignitions near towns, nmy analysis of 1,021 cause attributed fires showed that 
-            <b>lightning-associated fires showed substantially higher detection-count-based fire-size proxies</b> and account for 
-            <b>98% of the fires in the highest detection-count category</b>. 
-            Standard fire indices treat these two scenarios as identical. FireSignal provides the data to distinguish them.
-            <br><br>
-            
-            <b style='color: #1e3a5f;'>Note on fire merging:</b> When two fires approach each other, the model's spatial dependence feature captures the increased risk in the cells between them. 
-            While I don't explicitly model fire merging, the model learns that fires are not isolated. They interact spatially, which is why the model highlights the areas between active fire zones.
-        </div>
-        
-    </div>
-    """, unsafe_allow_html=True)
+<div style='background:#ffffff; border:1px solid #dbe8f5; border-left: 6px solid #dc2626; border-radius:12px; padding:1.6rem 2rem; margin-top: 1.5rem; box-shadow: 0 2px 8px rgba(37,99,168,0.06);'>
+
+<div style='font-family:Sora,sans-serif; font-size:1rem; font-weight:700; color:#1e3a5f; margin-bottom: 1rem;'>
+The Catastrophic Impact
+</div>
+
+<div style='font-size:0.88rem; color:#4a6080; line-height:1.9;'>
+While human activity causes more fire ignitions near towns, my analysis of 1,021 cause-attributed fires showed that 
+<b>lightning-associated fires showed substantially higher detection-count-based fire-size proxies</b> and account for 
+<b>98% of the fires in the highest detection-count category</b>. 
+Standard fire indices treat these two scenarios as identical. FireSignal provides the data to distinguish them.
+<br><br>
+
+<b style='color: #1e3a5f;'>Note on fire merging:</b> When two fires approach each other, the model's spatial dependence feature captures the increased risk in the cells between them. 
+While I don't explicitly model fire merging, the model learns that fires are not isolated. They interact spatially, which is why the model highlights the areas between active fire zones.
+</div>
+
+</div>
+""", unsafe_allow_html=True)
 
 with tab4:
     st.markdown('<div class="section-title">Data and Limitations</div>', unsafe_allow_html=True)
