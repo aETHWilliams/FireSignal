@@ -61,7 +61,7 @@ with tab2:
         'log_population_5km': 'mean', 'dist_to_powerline_km': 'mean'}).reset_index()
 
     kbdi = pd.read_csv(f"{DRIVE}/kbdi_features.csv")
-    fires_meta = pd.read_csv(f"{DRIVE}/fire_signal.csv")
+    fires_meta = pd.read_csv(f"{DRIVE}/fires_signal.csv")
     kbdi = kbdi.merge(fires_meta[['site_id','latitude','longitude']], on='site_id')
     kbdi['lat_cell'] = (kbdi['latitude'] // 1).astype(int)
     kbdi['lon_cell'] = (kbdi['longitude'] // 1).astype(int)
