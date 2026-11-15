@@ -169,45 +169,45 @@ with tab2:
         forecast_df[c] = forecast_df[c].fillna(forecast_df[c].median())
 
     forecast_df['risk'] = base_bundle['model'].predict_proba(forecast_df[FEATURES])[:,1]
-    forecast_df['risk_pct'] = (forecast_df['risk'] * 100).round(1)
 
     # 4. CREATE THE CHOROPLETH MAP
-    # Fetch Australia SA4 GeoJSON (High res, actual shapes)
-    url = "https://raw.githubusercontent.com/rowanhogan/australian-states/master/states.geojson"
-    
     try:
-        import requests
-        with urllib.request.urlopen(url) as response:
-            aus_geojson = json.load(response)
-            
-        # To color the shapes, we need to calculate the average risk inside each shape.
-        # We will do a simple point-in-polygon check using geopandas.
+        import urllib.request, json
         import geopandas as gpd
         from shapely.geometry import Point
         
-        # Load the actual polygons
+        # Use a highly reliable GeoJSON of Australian states
+        url = "https://raw.githubusercontent.com/rowanhogan/australian-states/master/states.geojson"
+        
+        with urllib.request.urlopen(url) as response:
+            aus_geojson = json.load(response)
+            
         aus_gdf = gpd.GeoDataFrame.from_features(aus_geojson['features'])
         
-        # Convert our predictions to a GeoDataFrame
+        # Convert predictions to GeoDataFrame
         geometry = [Point(xy) for xy in zip(forecast_df['lon_cell'], forecast_df['lat_cell'])]
         pred_gdf = gpd.GeoDataFrame(forecast_df, geometry=geometry, crs="EPSG:4326")
         
-        # Spatial join: find which state each grid cell falls into
-        joined = gpd.sjoin(pred_gdf, aus_gdf, how='inner', predicate='within')
+        # Spatial join (suppress the pandas index warning)
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            joined = gpd.sjoin(pred_gdf, aus_gdf, how='inner', predicate='within')
         
-        # Calculate the mean risk per state/region
-        region_risk = joined.groupby('STE_NAME16')['risk'].mean().reset_index()
+        # Calculate mean risk per state. Note: the GeoJSON uses "STATE_NAME"
+        region_risk = joined.groupby('STATE_NAME')['risk'].mean().reset_index()
         
-        # Merge that risk back into the GeoJSON properties
+        # Merge risk into the GeoJSON properties
         for feature in aus_geojson['features']:
-            region_name = feature['properties']['STE_NAME16']
-            match = region_risk[region_risk['STE_NAME16'] == region_name]
+            region_name = feature['properties'].get('STATE_NAME', 'Unknown')
+            match = region_risk[region_risk['STATE_NAME'] == region_name]
             risk_val = float(match['risk'].values[0]) if len(match) > 0 else 0.0
-            feature['properties']['risk_val'] = risk_val
             
-            # Assign a color based on risk
+            feature['properties']['risk_val'] = round(risk_val, 2)
+            
+            # Assign colors based on risk
             if risk_val > 0.7:
-                feature['properties']['color'] = [220, 38, 38, 200] # Deep Red
+                feature['properties']['color'] = [220, 38, 38, 200] # Red
                 feature['properties']['status'] = "Extreme Risk"
             elif risk_val > 0.5:
                 feature['properties']['color'] = [234, 88, 12, 200] # Orange
@@ -219,7 +219,7 @@ with tab2:
                 feature['properties']['color'] = [37, 99, 168, 150] # Blue
                 feature['properties']['status'] = "Low Risk"
 
-        # Render with PyDeck GeoJsonLayer
+        # Render with PyDeck
         layer = pdk.Layer(
             "GeoJsonLayer",
             aus_geojson,
@@ -234,7 +234,7 @@ with tab2:
         view_state = pdk.ViewState(latitude=-27.0, longitude=134.0, zoom=3.5, pitch=0)
         
         tooltip = {
-            "html": "<b>{STE_NAME16}</b><br/>Status: <b>{status}</b><br/>Avg Risk: {risk_val}",
+            "html": "<b>{STATE_NAME}</b><br/>Status: <b>{status}</b><br/>Avg Risk: {risk_val}",
             "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "13px", "padding": "8px", "borderRadius": "6px"}
         }
 
