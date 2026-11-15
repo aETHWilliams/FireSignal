@@ -50,10 +50,11 @@ def load_data():
     sites = pd.read_csv(f"{DRIVE}/sites_with_population.csv")
     kbdi = pd.read_csv(f"{DRIVE}/kbdi_features.csv")
     fires = pd.read_csv(f"{DRIVE}/fires_signal.csv")
-    return sites, kbdi, fires
+    lga_risk = pd.read_csv(f"{DRIVE}/lga_risk_full.csv")
+    return sites, kbdi, fires, lga_risk
 
 base_bundle, spread_bundle = load_models()
-sites, kbdi, fires_meta = load_data()
+sites, kbdi, fires_meta, lga_risk = load_data()
 
 st.markdown("""
 <div class="header-wrap">
@@ -141,9 +142,6 @@ with tab2:
     st.markdown("Predicted probability of ignition across Australian regions. Hover over the glowing regions to see the driving factors.")
     
     try:
-        import json
-        import pydeck as pdk
-        
         # Load the simplified map for the base borders
         with open(f"{DRIVE}/australia_lga_simplified.geojson", "r") as f:
             lga_geojson = json.load(f)
@@ -152,13 +150,10 @@ with tab2:
         for feature in lga_geojson['features']:
             feature['properties']['color'] = [255, 255, 255, 15] # Almost transparent
 
-        # Load the risk predictions
-        lga_risk = pd.read_csv(f"{DRIVE}/lga_risk_full.csv")
-        
         # Take the top 50 highest risk LGAs
         top_risk = lga_risk.nlargest(50, 'risk')
         
-        # Hardcode some approximate coordinates for the top LGAs so they position correctly
+        # Hardcode approximate coordinates for the top LGAs
         known_coords = {
             "Tenterfield": [-29.05, 152.02],
             "Inverell": [-29.77, 151.11],
@@ -190,7 +185,7 @@ with tab2:
                 "lon": lon,
                 "risk_val": f"{risk*100:.1f}%",
                 "kbdi": f"{row['kbdi_max']:.0f} (High Drought)",
-                "pop": f"{int(row['pop_5km']):,} people",
+                "pop": f"{int(row['pop_5km']):,} ppl/5km²",
                 "power": f"{int(row['dist_power'])} km",
                 "color": [220, 38, 38, 220] if risk > 0.75 else [234, 88, 12, 220] if risk > 0.60 else [234, 179, 8, 220]
             })
@@ -227,7 +222,7 @@ with tab2:
                     "Predicted Risk: <b>{risk_val}</b><br/><hr style='margin:4px 0; border-color:#4a6080'>"
                     "<b>Driving Factors:</b><br/>"
                     "Drought (KBDI): {kbdi}<br/>"
-                    "Population: {pop}<br/>"
+                    "Local Density: {pop}<br/>"
                     "Dist to Power: {power}",
             "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "12px", "padding": "10px", "borderRadius": "6px", "width": "250px"}
         }
@@ -249,6 +244,7 @@ with tab2:
         
     except Exception as e:
         st.error(f"Map Error: {e}")
+
 with tab3:
     st.markdown('<div class="section-title">Fire Regime Analysis</div>', unsafe_allow_html=True)
     
