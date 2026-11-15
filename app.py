@@ -385,47 +385,21 @@ While I don't explicitly model fire merging, the model learns that fires are not
 </div>
 """, unsafe_allow_html=True)
 
-with tab4:
-    st.markdown('<div class="section-title">Data and Limitations</div>', unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("### Data Sources")
-        st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
-            <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
-                <li><b>NASA FIRMS (MODIS and VIIRS):</b> 486,255 harmonised active fire detections for 2020, and 1.89M for 2019.</li>
-                <li><b>Open Meteo:</b> 54,300 daily weather records (temperature, rainfall, wind, ET0).</li>
-                <li><b>WorldPop (2020):</b> 1km resolution population density raster.</li>
-                <li><b>OpenStreetMap:</b> 19,759 powerline network features.</li>
-                <li><b>Queensland Government:</b> 8,784 hourly PM2.5 air quality records.</li>
-                <li><b>Mulgar (Monash University):</b> 1,021 cause attributed fires.</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("### Model Limitations")
-        st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
-            <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
-                <li><b>Severity Prediction Failure:</b> I cannot predict fire <i>size</i>. The severity model achieved an R2 of -0.11 because size is dictated by wind direction and suppression timing, which satellites cannot observe.</li>
-                <li><b>Resolution Limits:</b> The model operates on a 100km grid. It cannot predict a fire on a specific street corner.</li>
-                <li><b>Single Year Base:</b> The primary model is trained on the extreme 2020 Black Summer. It requires calibration for normal fire years.</li>
-                <li><b>Active Fire vs Burned Area:</b> I count thermal anomalies, not hectares burned.</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-
     with col2:
         st.markdown("### Future Improvements")
         st.markdown("""
         <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
             <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
-                <li><b>Live API Integration:</b> The model is currently a historical demonstration. The next step is to connect it to a live daily API that pulls the last 24 hours of FIRMS data and Open Meteo forecasts to generate a real time morning briefing map.</li>
-                <li><b>Live Weather Forecasts:</b> Replace the historical day of year proxy with actual 7 day weather forecasts to improve predictive accuracy.</li>
-                <li><b>Higher Resolution Grid:</b> Downscale from 100km cells to 25km cells to provide more localised, actionable intelligence for local councils.</li>
-                <li><b>Fuel Moisture (SMAP):</b> Integrate NASA SMAP soil moisture data to replace the mathematical proxy for fuel dryness.</li>
+                <li><b>Live API Integration (Short-term):</b> Connect to a live daily API pulling the last 24 hours of NASA FIRMS data and Open-Meteo forecasts to generate an automated 6:00 AM morning briefing map.</li>
+                <li><b>Live Weather Forecasts (Short-term):</b> Replace the historical day-of-year proxy with actual 7-day forecasts from the Bureau of Meteorology or Open-Meteo to predict fire risk up to a week in advance.</li>
+                <li><b>Higher Resolution Grid (Medium-term):</b> Downscale from 100km cells to 25km or 10km cells. This is crucial for local councils who need to know which specific valleys or ridges are at risk.</li>
+                <li><b>Fuel Moisture via NASA SMAP (Medium-term):</b> Replace the mathematical proxy with direct satellite measurements from the SMAP mission for a physical measurement of vegetation dryness.</li>
+                <li><b>Burned Area Integration (Medium-term):</b> Integrate NASA's MCD64A1 product to distinguish between briefly detected fires and fires that actually consumed large areas.</li>
+                <li><b>Indigenous Fire Management Integration (Long-term):</b> Integrate data on prescribed burns and cultural fire practices to distinguish between unplanned bushfires and planned hazard reduction burns.</li>
+                <li><b>Infrastructure Vulnerability Modeling (Long-term):</b> Overlay the fire risk map with critical infrastructure (powerlines, hospitals, evacuation routes) to show what essential services are at risk.</li>
+                <li><b>Live Satellite Fusion (Long-term):</b> Integrate geostationary satellites (like Himawari-8/9) which update every 10 minutes, alongside MODIS and VIIRS, to detect new fire fronts in near real-time.</li>
+                <li><b>Agent-Based Simulation (Long-term):</b> Run thousands of "what-if" scenarios to help fire agencies plan evacuation routes and resource allocation.</li>
+                <li><b>National Scale Deployment (Long-term):</b> Deploy on a dedicated cloud server (e.g., Azure or Google Cloud) and integrate directly with AFAC systems.</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
