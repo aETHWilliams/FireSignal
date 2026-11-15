@@ -16,41 +16,53 @@ st.set_page_config(
 
 # --- CUSTOM CSS ---
 st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Sora:wght@400;600;700&display=swap');
-    html, body, [class*="css"] { font-family: 'Inter', sans-serif; background-color: #f0f4f8; color: #1a2332; }
-    .main { background-color: #f0f4f8; }
-    .block-container { padding-top: 2rem; padding-bottom: 3rem; max-width: 1200px; }
-    
-    /* Header Box */
-    .header-wrap { background: #1e3a5f; border-radius: 16px; padding: 2.5rem 3rem; margin-bottom: 2rem; box-shadow: 0 4px 24px rgba(30,58,95,0.3); }
-    .header-title { font-family: 'Sora', sans-serif; font-size: 2.4rem; font-weight: 700; color: #ffffff; letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 0.4rem; }
-    .header-sub { font-size: 0.9rem; color: #a8c8e8; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; }
-    
-    /* Metric Cards */
-    .metric-card { background: #ffffff; border: 1px solid #dbe8f5; border-radius: 12px; padding: 1.2rem 1rem; text-align: center; box-shadow: 0 2px 8px rgba(37,99,168,0.07); }
-    .metric-value { font-family: 'Sora', sans-serif; font-size: 1.8rem; font-weight: 700; color: #2563a8; display: block; }
-    .metric-label { font-size: 0.7rem; color: #6b8cae; text-transform: uppercase; letter-spacing: 1px; margin-top: 0.2rem; }
-    
-    /* Section Titles */
-    .section-title { font-family: 'Sora', sans-serif; font-size: 1.2rem; font-weight: 600; color: #1e3a5f; border-bottom: 2px solid #dbe8f5; padding-bottom: 0.5rem; margin-bottom: 1.2rem; margin-top: 2rem; }
-    
-    /* Info Boxes */
-    .info-box { background: #1e3a5f; border-radius: 10px; padding: 1rem 1.4rem; margin-bottom: 1.2rem; font-size: 0.86rem; color: #ffffff; line-height: 1.8; }
-    .info-box b { color: #a8c8e8; }
-    
-    /* About Box */
-    .about-box { background: #1e3a5f; border: 1px solid #dbe8f5; border-left: 4px solid #3b82c4; border-radius: 10px; padding: 1.5rem; font-size: 0.88rem; color: #ffffff; line-height: 1.9; box-shadow: 0 2px 8px rgba(37,99,168,0.05); }
-    .about-box b { color: #a8c8e8; }
-    
-    /* Tags */
-    .tag { display: inline-block; background: #2563a8; color: #ffffff; font-size: 0.72rem; font-weight: 500; padding: 0.2rem 0.6rem; border-radius: 20px; margin-right: 0.3rem; }
-    
-    /* Text Selection Highlight */
-    ::selection { background: #3b82c4; color: #ffffff; }
-</style>
+<div class="header-wrap">
+    <div class="header-title">FireSignal</div>
+    <div class="header-sub">Australian Fire Ignition Forecast &nbsp;|&nbsp; Based on harmonised NASA MODIS/VIIRS data</div>
+</div>
 """, unsafe_allow_html=True)
 
+# --- THE BLACK SUMMER IMPACT BLOCK ---
+st.markdown("""
+<div style='background:#ffffff; border-left: 6px solid #dc2626; border-radius: 10px; padding: 1.5rem 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(220,38,38,0.1);'>
+    <div style='font-family: Sora, sans-serif; font-size: 1.1rem; font-weight: 700; color: #dc2626; margin-bottom: 0.8rem;'>
+        Trained on the data from the 2019-2020 Black Summer.
+    </div>
+    <div style='font-size: 0.9rem; color: #4a6080; line-height: 1.8;'>
+        We built this model using the lessons from Australia's most catastrophic fire season. The human cost was devastating:
+        <ul style='margin-top: 0.5rem; margin-bottom: 0.8rem;'>
+            <li><b>33 people</b> lost their lives.</li>
+            <li><b>Over 17 to 24 million hectares</b> of land burned.</li>
+            <li><b>More than 3,000 houses</b> were destroyed.</li>
+            <li>An estimated <b>3 billion animals</b> were killed or displaced.</li>
+        </ul>
+        <b style='color: #1e3a5f;'>We have the data. We have the technology. We need to do better.</b>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="info-box">
+FireSignal estimates the probability of subsequent fire activity across Australia, incorporating spatial and temporal relationships 
+in harmonised satellite observations. It is designed to provide an additional information layer to support fire agencies in resource allocation and planning.
+</div>
+""", unsafe_allow_html=True)
+
+c1, c2, c3, c4 = st.columns(4)
+metrics = [
+    ("0.854", "Model AUC"),
+    ("+0.044", "Contagion Impact"),
+    ("249,246", "Grid Cells Analysed"),
+    ("486,255", "NASA Detections Harmonised"),
+]
+for col, (val, label) in zip([c1, c2, c3, c4], metrics):
+    col.markdown(f"""
+    <div class="metric-card">
+        <span class="metric-value">{val}</span>
+        <span class="metric-label">{label}</span>
+    </div>""", unsafe_allow_html=True)
+
+st.markdown("<div style='margin-top: 2rem'></div>", unsafe_allow_html=True)
 DRIVE = "." 
 
 @st.cache_resource
