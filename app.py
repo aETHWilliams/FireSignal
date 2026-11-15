@@ -46,14 +46,14 @@ with tab2:
     st.subheader("Historical Forecast Demonstration (November 15, 2020)")
     st.markdown("Predicted probability of ignition across the Australian grid using historical data.")
     
-    # 1. Create the grid
+    # 1. Generate the full grid
     lat_grid = np.arange(-44, -9, 1)
     lon_grid = np.arange(113, 155, 1)
-    grid_cells = [{'lat_cell': int(lat), 'lon_cell': int(lon)} for lat in lat_grid for lon in lon_grid]
+    grid_cells = [{'lat_cell': float(lat), 'lon_cell': float(lon)} for lat in lat_grid for lon in lon_grid]
     forecast_df = pd.DataFrame(grid_cells)
     forecast_df['doy'] = pd.to_datetime('2020-11-15').dayofyear
     
-    # 2. Load static features
+    # 2. Load features
     sites = pd.read_csv(f"{DRIVE}/sites_with_population.csv")
     sites['lat_cell'] = (sites['latitude'] // 1).astype(int)
     sites['lon_cell'] = (sites['longitude'] // 1).astype(int)
@@ -79,42 +79,56 @@ with tab2:
 
     forecast_df['risk'] = base_bundle['model'].predict_proba(forecast_df[FEATURES])[:,1]
 
-    # 4. PLOT WITH ACTUAL GEOGRAPHIC BORDERS
-    fig, ax = plt.subplots(figsize=(12, 9))
+    # 4. PLOT WITH GEOGRAPHIC CLIPPING
+    fig, ax = plt.subplots(figsize=(12, 8), facecolor='white')
     
-    # Fetch Australia GeoJSON directly from the web (no datasets package needed)
     import urllib.request, json
     import geopandas as gpd
+    from shapely.geometry import Point
+    
     try:
+        # Fetch Australia shapefile
         url = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson"
         with urllib.request.urlopen(url) as response:
             world_data = json.load(response)
         world = gpd.GeoDataFrame.from_features(world_data['features'])
         australia = world[world['NAME'] == "Australia"]
-        australia.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+        
+        # Draw the landmass
+        australia.plot(ax=ax, color='#f0f0f0', edgecolor='#333333', linewidth=1.5, zorder=1)
+        
+        # --- THE FIX: Only plot grid cells that fall ON LAND ---
+        # Create a geometry column for the forecast grid
+        geometry = [Point(xy) for xy in zip(forecast_df['lon_cell'], forecast_df['lat_cell'])]
+        forecast_gdf = gpd.GeoDataFrame(forecast_df, geometry=geometry, crs="EPSG:4326")
+        
+        # Clip the grid to the Australia shapefile
+        clipped_grid = gpd.clip(forecast_gdf, australia)
+        
     except Exception as e:
         st.warning(f"Could not load map background: {e}")
+        clipped_grid = forecast_df # Fallback
+
+    # Filter out low-risk areas
+    active_risk = clipped_grid[clipped_grid['risk'] > 0.15]
     
-    # Filter out zero-risk areas so only active risk zones are plotted
-    active_risk = forecast_df[forecast_df['risk'] > 0.15]
-    
-    # Plot the risk cells as squares
+    # Plot the clipped risk cells
     sc = ax.scatter(active_risk['lon_cell'], active_risk['lat_cell'], 
-                    c=active_risk['risk'], cmap='YlOrRd', s=80, 
-                    marker='s', edgecolor='gray', linewidth=0.3, alpha=0.9, zorder=2)
+                    c=active_risk['risk'], cmap='magma_r', s=100, 
+                    marker='s', edgecolor='black', linewidth=0.2, alpha=0.85, zorder=2)
     
-    plt.colorbar(sc, label='Predicted Ignition Probability', fraction=0.046, pad=0.04)
+    cbar = plt.colorbar(sc, label='Ignition Probability', fraction=0.046, pad=0.04)
+    cbar.ax.tick_params(labelsize=10)
     
     ax.set_xlim(112, 154)
     ax.set_ylim(-44, -10)
-    ax.set_xlabel('Longitude', fontsize=12)
-    ax.set_ylabel('Latitude', fontsize=12)
-    ax.set_title('FireSignal Risk Forecast - 15 Nov 2020', fontsize=14, pad=15)
+    ax.set_title('FireSignal Ignition Probability - 15 Nov 2020', fontsize=16, pad=15, fontweight='bold')
     
-    # Clean up the axis borders
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.grid(True, linestyle='--', alpha=0.3, zorder=0)
+    # Remove the box border for a cleaner look
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.set_xticks([])
+    ax.set_yticks([])
     
     st.pyplot(fig)
 
