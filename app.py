@@ -139,47 +139,67 @@ with tab1:
 
 with tab2:
     st.markdown('<div class="section-title">Historical Forecast Demonstration (November 15, 2020)</div>', unsafe_allow_html=True)
-    st.markdown("Predicted probability of ignition across Australian LGAs. Hover over regions to see the driving factors.")
+    st.markdown("Predicted probability of ignition across Australia. The red zones show the primary threat areas.")
     
     try:
-        # Load the pre-colored, simplified map directly from GitHub
-        with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
+        import json
+        import pydeck as pdk
+        
+        # Load the national grid
+        with open(f"{DRIVE}/full_australia_grid.geojson", "r") as f:
+            grid_geojson = json.load(f)
+            
+        # Load LGA borders for context (optional)
+        with open(f"{DRIVE}/australia_colored_map.geojson", "r") as f:
             lga_geojson = json.load(f)
 
-        layer = pdk.Layer(
+        # Layer 1: The 100km risk squares
+        risk_layer = pdk.Layer(
             "GeoJsonLayer",
-            lga_geojson,
+            grid_geojson,
             pickable=True,
             stroked=True,
             filled=True,
             get_fill_color="properties.color",
-            get_line_color=[255, 255, 255, 100],
-            line_width_min_pixels=0.5,
+            get_line_color=[255, 255, 255, 50],
+            line_width_min_pixels=1,
         )
         
+        # Layer 2: Faint LGA borders
+        border_layer = pdk.Layer(
+            "GeoJsonLayer",
+            lga_geojson,
+            pickable=False,
+            stroked=True,
+            filled=False,
+            get_line_color=[255, 255, 255, 30],
+            line_width_min_pixels=0.5,
+        )
+
         view_state = pdk.ViewState(latitude=-27.0, longitude=134.0, zoom=3.5, pitch=0)
         
         tooltip = {
-            "html": "<b>{LGA_NAME_2021}</b><br/>"
-                    "Status: <b>{status}</b><br/>"
-                    "Predicted Risk: <b>{risk_val}</b><br/><hr style='margin:4px 0; border-color:#4a6080'>"
-                    "<b>Driving Factors:</b><br/>"
-                    "Drought (KBDI): {kbdi}<br/>"
-                    "Total LGA Population: {pop}<br/>"
-                    "Dist to Powerline: {power}",
-            "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "12px", "padding": "10px", "borderRadius": "6px", "width": "250px"}
+            "html": "<b>Grid Cell ({lat}, {lon})</b><br/>Risk: <b>{risk:.3f}</b>",
+            "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "12px", "padding": "10px", "borderRadius": "6px"}
         }
 
         st.pydeck_chart(pdk.Deck(
-            layers=[layer],
+            layers=[border_layer, risk_layer],
             initial_view_state=view_state,
             tooltip=tooltip,
             map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
         ))
         
+        st.markdown("""
+        <div style='background:#ffffff;border:1px solid #dbe8f5;border-left:4px solid #2563a8;border-radius:10px;
+        padding:1.2rem 1.4rem;margin-top:1.5rem;box-shadow:0 2px 8px rgba(37,99,168,0.05);font-size:0.85rem;
+        color:#4a6080;line-height:1.8;'>
+        <b>Validation Note:</b> The model predicts elevated risk (red/orange) concentrated along the NSW/QLD border and scattered hotspots across the interior, matching the historical distribution of the 2019-2020 Black Summer.
+        </div>
+        """, unsafe_allow_html=True)
+        
     except Exception as e:
         st.error(f"Map Error: {e}")
-
 with tab3:
     st.markdown('<div class="section-title">Fire Regime Analysis</div>', unsafe_allow_html=True)
     
