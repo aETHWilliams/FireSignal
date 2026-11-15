@@ -121,13 +121,28 @@ tab1, tab2, tab3, tab4 = st.tabs(["Scientific Rigour", "Forecast Map", "Fire Reg
 with tab1:
     st.markdown('<div class="section-title">Rigorous Model Evaluation</div>', unsafe_allow_html=True)
     
+    # --- THE LAYMAN'S EXPLANATION ---
     st.markdown("""
-    <div class="info-box">
-    We aggregated NASA FIRMS detections into a 1-degree grid (~100km resolution), generating 249,246 daily records. 
-    We applied a strict chronological train/test split (Train: Jan-Oct, Test: Nov-Dec) to prevent data leakage.
+    <div style='background:#e8f0fb;border:1px solid #dbe8f5;border-left:4px solid #2563a8;border-radius:10px;
+    padding:1.4rem 1.6rem;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(37,99,168,0.05);font-size:0.9rem;
+    color:#1e3a5f;line-height:1.8;'>
+    
+    <b>In Plain English: What did we actually discover?</b><br><br>
+    Standard fire models rely on weather. They tell you <i>"it is hot and dry here, so fire is possible."</i> 
+    But they don't tell you <b>where</b> the next fire will start.<br><br>
+    
+    Our research shows that fire acts like a spreading infection. If a fire is burning in one area today, 
+    the probability of a new fire starting in the neighbouring area tomorrow skyrockets. By adding a feature 
+    that simply asks the model <i>"Was there a fire next door yesterday?"</i>, our ability to predict where 
+    the next fire will happen improved dramatically.<br><br>
+    
+    <b>The Analogy:</b> Weather tells you if the grass is dry enough to catch a spark. Spatial contagion tells you 
+    where the sparks are currently flying. You need both to predict the next fire.
+    
     </div>
     """, unsafe_allow_html=True)
 
+    # --- THE TECHNICAL PROOF ---
     st.markdown("### 1. Ablation Test (Proving Contagion)")
     st.markdown("""
     To isolate the predictive value of spatial dependence, we compared two identical models, one with and one without the `neighbor_fire_yesterday` feature:
@@ -150,6 +165,8 @@ with tab1:
 
     st.markdown("### 3. Does the model generalise?")
     st.markdown("""
+    We stress-tested the model to ensure it wasn't just memorising the 2020 data:
+    
     | Validation Test | Description | Result |
     | :--- | :--- | :--- |
     | **Forward-in-time** | Train 2019, Test 2020 | AUC **0.843** |
@@ -160,9 +177,9 @@ with tab1:
     
     st.markdown("""
     <div class="info-box" style="border-left: 4px solid #dc2626;">
-    <b>Conclusion & Limitations:</b> Fire occurrence is not solely a function of weather or location; it is measurably influenced by recent nearby fire activity. 
-    However, we also tested whether the system could predict fire <b>severity</b> (size). It performed poorly (CV R² -0.11). We report this because understanding the limitations 
-    of satellite-derived predictions is just as important as understanding their potential.
+    <b>Conclusion & Limitations:</b> Fire occurrence is measurably influenced by recent nearby fire activity. 
+    However, we also tested whether the system could predict fire <b>severity</b> (size). It performed poorly (CV R² -0.11). 
+    We report this because understanding the limitations of satellite-derived predictions is just as important as understanding their potential.
     </div>
     """, unsafe_allow_html=True)
 
