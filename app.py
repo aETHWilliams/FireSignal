@@ -182,7 +182,7 @@ with tab1:
 
     st.markdown("**3. Does the model generalise?**")
     st.markdown("""
-    I stress tested the model to ensure it was not just memorising the 2020 data:
+    I stress tested the model to ensure it was not just memorising the 2020 data
     
     | Validation Test | Description | Result |
     | :--- | :--- | :--- |
@@ -210,14 +210,14 @@ with tab2:
     <span style="font-size:0.8rem; color:#6b8cae;"><i>Note on map boundaries: Streamlit Community Cloud has strict memory limits. 
     To keep the app fast and responsive, I have used a simplified spatial projection of the LGA boundaries. 
     This causes slight visual distortions in the proportions of the largest LGAs. A production deployment on a dedicated server 
-    would render the full-resolution 44MB GeoJSON.</i></span>
+    would render the full resolution 44MB GeoJSON.</i></span>
     """, unsafe_allow_html=True)
 
     try:
         with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
             lga_geojson = json.load(f)
 
-        # Update populations manually to fix the log conversion
+        # upd pop manually to fix the log conversion
         real_populations = {
             "Tenterfield": "4,066", "Inverell": "16,483", "Moree Plains": "13,159",
             "Walcha": "3,092", "MidCoast": "90,000", "Tamworth Regional": "59,663",
@@ -359,10 +359,10 @@ with tab3:
         </div>
         """, unsafe_allow_html=True)
 
-    # SADD Spacer to create the 50/50 alignment for the bottom box
+    # SADD dog spacer to create the 50/50 alignment for the bot box
     st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
 
-    # Single wide white box for the combined narrative
+    # singo wide white box for the combined narrative
     # NO INDENT ON HTML TAGZ
     st.markdown("""
 <div style='background:#ffffff; border:1px solid #dbe8f5; border-left: 6px solid #dc2626; border-radius:12px; padding:1.6rem 2rem; margin-top: 1.5rem; box-shadow: 0 2px 8px rgba(37,99,168,0.06);'>
@@ -372,9 +372,9 @@ The Catastrophic Impact
 </div>
 
 <div style='font-size:0.88rem; color:#4a6080; line-height:1.9;'>
-While human activity causes more fire ignitions near towns, my analysis of 1,021 cause-attributed fires showed that 
-<b>lightning-associated fires showed substantially higher detection-count-based fire-size proxies</b> and account for 
-<b>98% of the fires in the highest detection-count category</b>. 
+While human activity causes more fire ignitions near towns, my analysis of 1,021 cause attributed fires showed that 
+<b>lightning associated fires showed substantially higher detection count-based fire size proxies</b> and account for 
+<b>98% of the fires in the highest detection count category</b>. 
 Standard fire indices treat these two scenarios as identical. FireSignal provides the data to distinguish them.
 <br><br>
 
