@@ -50,11 +50,10 @@ def load_data():
     sites = pd.read_csv(f"{DRIVE}/sites_with_population.csv")
     kbdi = pd.read_csv(f"{DRIVE}/kbdi_features.csv")
     fires = pd.read_csv(f"{DRIVE}/fires_signal.csv")
-    lga_risk = pd.read_csv(f"{DRIVE}/lga_risk_full.csv")
-    return sites, kbdi, fires, lga_risk
+    return sites, kbdi, fires
 
 base_bundle, spread_bundle = load_models()
-sites, kbdi, fires_meta, lga_risk = load_data()
+sites, kbdi, fires_meta = load_data()
 
 st.markdown("""
 <div class="header-wrap">
@@ -142,14 +141,11 @@ with tab2:
     st.markdown("Predicted probability of ignition across Australian LGAs. Hover over regions to see the driving factors.")
     
     try:
-        import json
-        import pydeck as pdk
-        
         # Load the pre-colored LGA map we generated earlier
         with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
             lga_geojson = json.load(f)
 
-        # THIS IS THE FIX: Find any LGA that says "No Data" and color it blue instead of grey
+        # Find any LGA that says "No Data" and color it blue instead of grey
         for feature in lga_geojson['features']:
             if feature['properties'].get('status') == "No Data":
                 feature['properties']['color'] = [37, 99, 168, 180] # Low Risk Blue
@@ -167,7 +163,7 @@ with tab2:
         )
         
         # Zoom out to see the whole country
-                view_state = pdk.ViewState(
+        view_state = pdk.ViewState(
             latitude=-27.0,
             longitude=134.0,
             zoom=3.5,
@@ -203,6 +199,7 @@ with tab2:
         
     except Exception as e:
         st.error(f"Map Error: {e}")
+
 with tab3:
     st.markdown('<div class="section-title">Fire Regime Analysis</div>', unsafe_allow_html=True)
     
