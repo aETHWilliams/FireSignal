@@ -139,108 +139,43 @@ with tab1:
 
 with tab2:
     st.markdown('<div class="section-title">Historical Forecast Demonstration (November 15, 2020)</div>', unsafe_allow_html=True)
-    st.markdown("Predicted probability of ignition across Australian regions. Hover over the glowing regions to see the driving factors.")
+    st.markdown("Predicted probability of ignition across Australian LGAs. Hover over regions to see the driving factors.")
     
     try:
-        # Load the simplified map for the base borders
-        with open(f"{DRIVE}/australia_lga_simplified.geojson", "r") as f:
+        # Load the pre-colored, simplified map directly from GitHub
+        with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
             lga_geojson = json.load(f)
-            
-        # Make the base map borders very faint
-        for feature in lga_geojson['features']:
-            feature['properties']['color'] = [255, 255, 255, 15] # Almost transparent
 
-        # Take the top 50 highest risk LGAs
-        top_risk = lga_risk.nlargest(50, 'risk')
-        
-        # Hardcode approximate coordinates for the top LGAs
-        known_coords = {
-            "Tenterfield": [-29.05, 152.02],
-            "Inverell": [-29.77, 151.11],
-            "Moree Plains": [-29.46, 149.84],
-            "Walcha": [-31.00, 151.59],
-            "MidCoast": [-31.95, 152.50],
-            "Tamworth Regional": [-31.08, 150.93],
-            "Upper Hunter Shire": [-31.95, 150.85],
-            "Cessnock": [-32.83, 151.35],
-            "Narrabri": [-30.33, 149.78],
-            "Mid-Western Regional": [-32.60, 149.58]
-        }
-
-        points_data = []
-        for _, row in top_risk.iterrows():
-            name = row['LGA_NAME']
-            risk = float(row['risk'])
-            
-            # Get coordinates, or place within NSW if not explicitly known
-            if name in known_coords:
-                lat, lon = known_coords[name]
-            else:
-                lat = -30.5 + np.random.uniform(-2, 2)
-                lon = 150.5 + np.random.uniform(-2, 2)
-                
-            points_data.append({
-                "name": name,
-                "lat": lat,
-                "lon": lon,
-                "risk_val": f"{risk*100:.1f}%",
-                "kbdi": f"{row['kbdi_max']:.0f} (High Drought)",
-                "pop": f"{int(row['pop_5km']):,} ppl/5km²",
-                "power": f"{int(row['dist_power'])} km",
-                "color": [220, 38, 38, 220] if risk > 0.75 else [234, 88, 12, 220] if risk > 0.60 else [234, 179, 8, 220]
-            })
-
-        # Define the layers
-        border_layer = pdk.Layer(
+        layer = pdk.Layer(
             "GeoJsonLayer",
             lga_geojson,
-            pickable=False,
+            pickable=True,
             stroked=True,
             filled=True,
             get_fill_color="properties.color",
-            get_line_color=[255, 255, 255, 30],
+            get_line_color=[255, 255, 255, 100],
             line_width_min_pixels=0.5,
         )
         
-        threat_layer = pdk.Layer(
-            "ScatterplotLayer",
-            points_data,
-            get_position=["lon", "lat"],
-            get_color="color",
-            get_radius=55000, # 55km radius
-            pickable=True,
-            opacity=0.8,
-            stroked=True,
-            get_line_color=[255, 255, 255, 180],
-            line_width_min_pixels=1,
-        )
-
-        view_state = pdk.ViewState(latitude=-30.0, longitude=150.0, zoom=4.5, pitch=0)
+        view_state = pdk.ViewState(latitude=-27.0, longitude=134.0, zoom=3.5, pitch=0)
         
         tooltip = {
-            "html": "<b>{name}</b><br/>"
+            "html": "<b>{LGA_NAME_2021}</b><br/>"
+                    "Status: <b>{status}</b><br/>"
                     "Predicted Risk: <b>{risk_val}</b><br/><hr style='margin:4px 0; border-color:#4a6080'>"
                     "<b>Driving Factors:</b><br/>"
                     "Drought (KBDI): {kbdi}<br/>"
-                    "Local Density: {pop}<br/>"
-                    "Dist to Power: {power}",
+                    "Total LGA Population: {pop}<br/>"
+                    "Dist to Powerline: {power}",
             "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "12px", "padding": "10px", "borderRadius": "6px", "width": "250px"}
         }
 
         st.pydeck_chart(pdk.Deck(
-            layers=[border_layer, threat_layer],
+            layers=[layer],
             initial_view_state=view_state,
             tooltip=tooltip,
             map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
         ))
-        
-        st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-left:4px solid #2563a8;border-radius:10px;
-        padding:1.2rem 1.4rem;margin-top:1.5rem;box-shadow:0 2px 8px rgba(37,99,168,0.05);font-size:0.85rem;
-        color:#4a6080;line-height:1.8;'>
-        <b>Validation Note:</b> The model's highest predictions concentrate in Northern NSW, aligning with the regions severely impacted by the 2019-2020 Black Summer bushfires.
-        </div>
-        """, unsafe_allow_html=True)
         
     except Exception as e:
         st.error(f"Map Error: {e}")
