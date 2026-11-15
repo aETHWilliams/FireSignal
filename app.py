@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
-import plotly.express as px
-import plotly.graph_objects as go
 import pydeck as pdk
 import urllib.request, json
 import geopandas as gpd
@@ -141,17 +139,14 @@ with tab2:
     st.markdown("Predicted probability of ignition across Australian LGAs. Hover over regions to see the driving factors.")
     
     try:
-        import json
-        import pydeck as pdk
-        
         # Load the LGA map
         with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
             lga_geojson = json.load(f)
 
-        # THE FIX: Fill all empty/no-data regions with blue so the map looks complete
+        # Fill all empty/no-data regions with the new Peach color #f4baa3
         for feature in lga_geojson['features']:
-            if feature['properties'].get('status') == "No Data":
-                feature['properties']['color'] = [37, 99, 168, 180] # Low Risk Blue
+            if feature['properties'].get('status') == "No Data" or feature['properties'].get('status') == "Low Risk":
+                feature['properties']['color'] = [244, 186, 163, 180] # #f4baa3 with opacity
                 feature['properties']['status'] = "Low Risk"
 
         layer = pdk.Layer(
@@ -161,11 +156,11 @@ with tab2:
             stroked=True,
             filled=True,
             get_fill_color="properties.color",
-            get_line_color=[255, 255, 255, 60], # Faint white borders
+            get_line_color=[255, 255, 255, 80], # Visible white borders
             line_width_min_pixels=0.5,
         )
         
-        # Zoom to see the whole country
+        # Zoom out to see the whole country
         view_state = pdk.ViewState(
             latitude=-27.0,
             longitude=134.0,
@@ -195,8 +190,8 @@ with tab2:
         <div style='background:#ffffff;border:1px solid #dbe8f5;border-left:4px solid #2563a8;border-radius:10px;
         padding:1.2rem 1.4rem;margin-top:1.5rem;box-shadow:0 2px 8px rgba(37,99,168,0.05);font-size:0.85rem;
         color:#4a6080;line-height:1.8;'>
-        <b>Validation Note:</b> The model correctly predicts Extreme Risk (Red) concentrated in Northern NSW, 
-        aligning exactly with the 2019-2020 Black Summer. The rest of the country is predicted as Low Risk (Blue).
+        <b>Validation Note:</b> The model's highest predictions concentrate in Northern NSW, with distinct risk 
+        predicted along the Queensland border. The rest of the country shows low risk.
         </div>
         """, unsafe_allow_html=True)
         
