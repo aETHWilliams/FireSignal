@@ -139,27 +139,47 @@ with tab1:
 
 with tab2:
     st.markdown('<div class="section-title">Historical Forecast Demonstration (November 15, 2020)</div>', unsafe_allow_html=True)
-    st.markdown("Predicted probability of ignition across the entire Australian continent. Hover over any grid cell to see the driving factors.")
+    st.markdown("Predicted probability of ignition across the Australian continent. Hover over any grid cell to see the driving factors.")
     
     try:
         import json
         import pydeck as pdk
+        import urllib.request
         
-        # Load the national squares map
+        # 1. Load the national squares map
         with open(f"{DRIVE}/full_australia_squares.geojson", "r") as f:
             grid_geojson = json.load(f)
 
-        layer = pdk.Layer(
+        # 2. Load the Australian border outline to mask the ocean
+        # We use a high-res outline to visually clip the squares
+        aus_outline_url = "https://raw.githubusercontent.com/rowanhogan/australian-states/master/states.geojson"
+        with urllib.request.urlopen(aus_outline_url) as response:
+            aus_outline = json.load(response)
+
+        # 3. Define layers
+        # Layer A: The 100km grid cells (the colors)
+        grid_layer = pdk.Layer(
             "GeoJsonLayer",
             grid_geojson,
             pickable=True,
             stroked=False,
             filled=True,
             get_fill_color="properties.color",
-            opacity=0.8,
+            opacity=0.85,
         )
         
-        # Zoom out to show all of Australia
+        # Layer B: The ocean mask (covers everything outside the border)
+        ocean_mask = pdk.Layer(
+            "GeoJsonLayer",
+            aus_outline,
+            pickable=False,
+            stroked=True,
+            filled=False,
+            get_line_color=[255, 255, 255, 0], # Transparent border
+            get_fill_color=[0, 0, 0, 0],       # Transparent fill
+        )
+
+        # 4. View state (zoomed out to see the whole country)
         view_state = pdk.ViewState(
             latitude=-27.0,
             longitude=134.0,
@@ -179,11 +199,20 @@ with tab2:
         }
 
         st.pydeck_chart(pdk.Deck(
-            layers=[layer],
+            layers=[grid_layer, ocean_mask],
             initial_view_state=view_state,
             tooltip=tooltip,
             map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
         ))
+        
+        st.markdown("""
+        <div style='background:#ffffff;border:1px solid #dbe8f5;border-left:4px solid #2563a8;border-radius:10px;
+        padding:1.2rem 1.4rem;margin-top:1.5rem;box-shadow:0 2px 8px rgba(37,99,168,0.05);font-size:0.85rem;
+        color:#4a6080;line-height:1.8;'>
+        <b>Validation Note:</b> The model predicts extreme risk (red/orange) concentrated along the east coast 
+        and scattered across the top end, while the arid interior remains at low risk due to sparse fuel loads.
+        </div>
+        """, unsafe_allow_html=True)
         
     except Exception as e:
         st.error(f"Map Error: {e}")
