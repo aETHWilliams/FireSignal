@@ -41,7 +41,7 @@ Stress tested the model to ensure it was not just memorising the 2020 Black Summ
 In accordance with NASA Space Apps guidelines, disclose that Qwen3 (8B) running locally via Ollama was used to assist with data cleaning scripts, debugging coordinate geometries, and generating the Streamlit UI code. Core scientific methodology, model selection, and validation testing were led by me.
 
 ## Live Application
-Test the live dashboard here: https://firesignal-fbkttpxjn8mtghusyuncc.streamlit.app
+Test the live dashboard here: https://firesignal-fbkttpxjn8mtghusyuncct.streamlit.app/
 
 ***
 *We have the data. We have the technology. We need to do better.*
