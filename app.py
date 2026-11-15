@@ -205,7 +205,7 @@ with tab1:
         st.markdown("""
         *   **What I predict:** The 24-hour probability of a NASA FIRMS thermal anomaly detection within a 100km grid cell.
         *   **Positive Event:** Any thermal anomaly detected in the cell on the following day.
-        *   **Ranking vs Calibration:** I optimized for ranking (AUC 0.854). For operational deployment, the raw scores would require calibration (e.g., isotonic regression) to ensure an 80% predicted risk corresponds to an 80% empirical probability.
+        *   **Ranking vs Calibration:** I optimised for ranking (AUC 0.854). For operational deployment, the raw scores would require calibration (e.g., isotonic regression) to ensure an 80% predicted risk corresponds to an 80% empirical probability.
         *   **PR-AUC:** 0.543 (Robust metric for imbalanced datasets).
         *   **Cause Attribution:** The 98% statistic is derived from 1,021 cause-attributed fires (Mulgar dataset).
         """)
@@ -450,9 +450,9 @@ with tab4:
     
     with st.expander("View Technical Caveats & Model Boundaries"):
         st.markdown("""
-        *   **100km Grid Resolution:** This model operates on a 100km regional grid. It is designed as a **regional triage layer**, not a street-level dispatch tool. The next step is downscaling to a 25km grid.
-        *   **Persistence vs. Discovery:** While the neighbour-fire feature captures some fire persistence (ongoing fires), it also captures genuine new ignitions. A model trained only on *new* ignitions still achieved an AUC of 0.697.
-        *   **The 98% Statistic:** This is based on 1,021 cause-attributed fires (Mulgar dataset). The "highest detection-count category" is defined as the top 10% of fires by nearby FIRMS detections (≥229 detections within 11km and 7 days).
-        *   **Probability Calibration:** The model is optimized for ranking (AUC), not absolute calibration. An 83.6% risk means the cell ranks highly, not that there is an 83.6% exact chance of fire. Operational use requires isotonic regression.
+        *   **100km Grid Resolution:** This model operates on a 100km regional grid. It is designed as a **regional triage layer**, not a street level dispatch tool. The next step is downscaling to a 25km grid.
+        *   **Persistence vs. Discovery:** While the neighbour fire feature captures some fire persistence (ongoing fires), it also captures genuine new ignitions. A model trained only on *new* ignitions still achieved an AUC of 0.697.
+        *   **The 98% Statistic:** This is based on 1,021 cause attributed fires (Mulgar dataset). The "highest detection-count category" is defined as the top 10% of fires by nearby FIRMS detections (≥229 detections within 11km and 7 days).
+        *   **Probability Calibration:** The model is optimised for ranking (AUC), not absolute calibration. An 83.6% risk means the cell ranks highly, not that there is an 83.6% exact chance of fire. Operational use requires isotonic regression.
         *   **Agency Use:** I have not tested this with AFAC or NSW RFS. It is a research prototype intended to show what is possible with harmonised NASA data.
         """)
