@@ -208,11 +208,6 @@ with tab2:
         with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
             lga_geojson = json.load(f)
 
-        for feature in lga_geojson['features']:
-            if feature['properties'].get('status') == "No Data":
-                feature['properties']['color'] = [30, 58, 95, 180] # Navy
-                feature['properties']['status'] = "Low Risk"
-
         layer = pdk.Layer(
             "GeoJsonLayer",
             lga_geojson,
@@ -231,7 +226,6 @@ with tab2:
             pitch=0
         )
         
-        # Reordered Tooltip for Clarity
         tooltip = {
             "html": "<div style='font-size:14px; margin-bottom: 5px;'><b>{LGA_NAME_2021}</b></div>"
                     "<div style='font-size:12px;'>Status: <b>{status}</b></div>"
@@ -239,7 +233,7 @@ with tab2:
                     "<hr style='margin:4px 0; border-color:#4a6080'>"
                     "<div style='font-size:11px;'><b>Model Inputs:</b><br/>"
                     "Drought (KBDI): {kbdi}<br/>"
-                    "Local Density (5km): {pop}<br/>"
+                    "LGA Population: {pop}<br/>"
                     "Dist to Powerline: {power}</div>",
             "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "12px", "padding": "10px", "borderRadius": "6px", "width": "250px"}
         }
@@ -276,10 +270,9 @@ with tab2:
         # Explanatory Note
         st.markdown("""
         <div class="info-box" style="border-left: 4px solid #2563a8; margin-top: 1rem;">
-        <b>Why does Tenterfield show 84% risk with a low density?</b><br/>
-        The model combines weather, geography, and human data. Tenterfield is extremely dry (KBDI 195) and has a very low local density at its grid point. 
-        This means a lightning strike here would cause a fire that authorities cannot easily reach. The model correctly identifies this as a <b>natural lightning risk</b>, 
-        whereas areas closer to the coast might have lower drought but higher human ignition risk.
+        <b>How to read this map:</b> The model combines weather, geography, and human data to predict risk. 
+        For example, <b>Tenterfield</b> is extremely dry (KBDI 195) and remote, meaning a lightning strike would cause a fire 
+        that authorities cannot easily reach. This is why it carries an Extreme Risk rating.
         </div>
         """, unsafe_allow_html=True)
         
