@@ -413,16 +413,39 @@ While I don't explicitly model fire merging, the model learns that fires are not
 
 with tab4:
     st.markdown('<div class="section-title">Highest Risk LGAs (15 Nov 2020)</div>', unsafe_allow_html=True)
-    st.markdown("This table ranks the highest risk Local Government Areas by predicted probability on 15 November 2020.")
+    st.markdown("Hover over the map on the Forecast Map tab to see these LGAs in context. This table ranks the highest risk Local Government Areas by predicted probability.")
     
     try:
         with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
             lga_geojson = json.load(f)
             
+        # Expanded dictionary with 2021 Census populations for the top LGAs
+        real_populations = {
+            "Tenterfield": "4,066", "Inverell": "16,483", "Moree Plains": "13,159",
+            "Walcha": "3,092", "MidCoast": "90,000", "Tamworth Regional": "59,663",
+            "Upper Hunter Shire": "14,100", "Cessnock": "55,560", "Narrabri": "13,100",
+            "Clarence Valley": "50,000", "Lachlan Valley": "6,000",
+            "Mid-Western Regional": "25,500", "Richmond Valley": "23,500",
+            "Glen Innes Severn": "9,000", "Oberon": "5,500",
+            "Gunnedah": "13,000", "Coonamble": "4,000", "Walgett": "6,500",
+            "Goulburn Mulwaree": "32,000", "Sutherland Shire": "235,000",
+            "Edward River": "8,500", "Dubbo Regional": "54,000",
+            "Warrumbungle Shire": "9,000", "Eurobodalla": "40,000",
+            "Brewarrina": "1,500", "Cabonne": "14,000", "Parkes": "14,500",
+            "Weddin": "3,500"
+        }
+            
         top_lgas = []
         for feature in lga_geojson['features']:
             name = feature['properties']['LGA_NAME_2021']
             risk_str = feature['properties'].get('risk_val', '0%').replace('%', '')
+            
+            # Use corrected population if available
+            if name in real_populations:
+                pop_str = real_populations[name]
+            else:
+                pop_str = feature['properties'].get('pop', 'N/A')
+
             kbdi_str = feature['properties'].get('kbdi', 'N/A')
             
             try:
@@ -435,20 +458,18 @@ with tab4:
                     'LGA': name, 
                     'Risk (%)': risk_val,
                     'Drought (KBDI)': kbdi_str,
+                    'Population': pop_str
                 })
                 
         top_df = pd.DataFrame(top_lgas).sort_values(by='Risk (%)', ascending=False).head(30)
         top_df.index = range(1, len(top_df) + 1)
         top_df.index.name = 'Rank'
         
-        # Format risk as percentage string
-        top_df['Risk (%)'] = top_df['Risk (%)'].apply(lambda x: f"{x:.1f}%")
-        
         st.dataframe(top_df, use_container_width=True, height=600)
         
         st.markdown("""
         <div class="info-box" style="border-left: 4px solid #2563a8; margin-top: 1.5rem;">
-        <b>Reading this table:</b> The <b>Risk (%)</b> column is the model's predicted probability that a NASA FIRMS thermal anomaly will occur in that LGA's grid cells on 15 November 2020. The <b>Drought (KBDI)</b> column shows the primary weather driver. A high KBDI (above 150) indicates severe drought conditions.
+        <b>Reading this table:</b> The <b>Risk (%)</b> column is the model's predicted probability that a NASA FIRMS thermal anomaly will occur in that LGA's grid cells on 15 November 2020. The <b>Drought (KBDI)</b> and <b>Population</b> columns show the key drivers. A high KBDI (above 150) indicates severe drought conditions. A low population indicates a remote fire risk (harder to fight, more likely lightning-caused).
         </div>
         """, unsafe_allow_html=True)
         
