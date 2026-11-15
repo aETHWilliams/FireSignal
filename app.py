@@ -286,23 +286,46 @@ with tab3:
     """, unsafe_allow_html=True)
 
 with tab4:
-    st.markdown('<div class="section-title">About This Model</div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div class="about-box">
-    <b>Methodology</b><br>
-    This model utilises XGBoost trained on harmonised MODIS/VIIRS satellite data, weather indices, population density, and infrastructure proximity across 249,246 daily records in 2020.
-    It is designed to estimate the probability of <b>subsequent fire activity</b>, providing a predictive signal for where attention may be needed.<br><br>
+    st.markdown('<div class="section-title">Data Sources & Model Limitations</div>', unsafe_allow_html=True)
     
-    <b>What This New Layer Adds</b><br>
-    By incorporating spatial and temporal dependence, FireSignal demonstrated that a neighbouring-fire feature improved AUC from 0.810 to 0.854, proving that satellite data contains additional predictive information beyond weather and geography.<br><br>
+    col1, col2 = st.columns(2)
     
-    <b>Data Sources</b><br>
-    Satellite: NASA FIRMS (MODIS + VIIRS). Environmental: Open-Meteo, WorldPop. Infrastructure: Geoscience Australia.<br><br>
-    
-    <span class="tag">XGBoost</span>
-    <span class="tag">Spatiotemporal</span>
-    <span class="tag">Ablation</span>
-    <span class="tag">MODIS / VIIRS</span>
-    <span class="tag">Streamlit</span>
-    </div>
-    """, unsafe_allow_html=True)
+    with col1:
+        st.markdown("### Data Sources Integrated")
+        st.markdown("""
+        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
+            <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
+                <li><b>NASA FIRMS (MODIS + VIIRS):</b> 486,255 harmonised active fire detections for 2020, and 1.89M for 2019.</li>
+                <li><b>Open-Meteo:</b> 54,300 daily weather records (temperature, rainfall, wind, ET0).</li>
+                <li><b>WorldPop (2020):</b> 1km resolution population density raster.</li>
+                <li><b>OpenStreetMap (via earth-osm):</b> 19,759 powerline network features.</li>
+                <li><b>Queensland Government:</b> 8,784 hourly PM2.5 air quality records.</li>
+                <li><b>Mulgar (Monash University):</b> 1,021 cause-attributed fires for regime analysis.</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("### Model Limitations")
+        st.markdown("""
+        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
+            <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
+                <li><b>Severity Prediction Failure:</b> We cannot predict fire <i>size</i>. The severity model achieved an R² of -0.11 because size is dictated by wind direction and suppression timing, which satellites cannot observe.</li>
+                <li><b>Resolution Limits:</b> The model operates on a 100km grid. It cannot predict a fire on a specific street corner.</li>
+                <li><b>Single Year Base:</b> The primary model is trained on the extreme 2020 Black Summer. It requires calibration for normal fire years.</li>
+                <li><b>Active Fire vs Burned Area:</b> We count thermal anomalies, not hectares burned.</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("### Future Improvements")
+        st.markdown("""
+        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
+            <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
+                <li><b>Live API Integration:</b> The model is currently a historical demonstration. The next step is to connect it to a live daily API that pulls the last 24 hours of FIRMS data and Open-Meteo forecasts to generate a real-time morning briefing map.</li>
+                <li><b>Live Weather Forecasts:</b> Replace the historical `doy` (day of year) proxy with actual 7-day weather forecasts to improve predictive accuracy.</li>
+                <li><b>Higher Resolution Grid:</b> Downscale from 100km cells to 25km cells to provide more localized, actionable intelligence for local councils.</li>
+                <li><b>Fuel Moisture (SMAP):</b> Integrate NASA SMAP soil moisture data to replace the mathematical proxy for fuel dryness.</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
