@@ -371,44 +371,65 @@ with tab3:
 with tab4:
     st.markdown('<div class="section-title">Data and Limitations</div>', unsafe_allow_html=True)
     
-    col1, col2 = st.columns(2)
+        col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("### Data Sources")
         st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
-            <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
-                <li><b>NASA FIRMS (MODIS and VIIRS):</b> 486,255 harmonised active fire detections for 2020, and 1.89M for 2019.</li>
-                <li><b>Open Meteo:</b> 54,300 daily weather records (temperature, rainfall, wind, ET0).</li>
-                <li><b>WorldPop (2020):</b> 1km resolution population density raster.</li>
-                <li><b>OpenStreetMap:</b> 19,759 powerline network features.</li>
-                <li><b>Queensland Government:</b> 8,784 hourly PM2.5 air quality records.</li>
-                <li><b>Mulgar (Monash University):</b> 1,021 cause attributed fires.</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("### Model Limitations")
-        st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
-            <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
-                <li><b>Severity Prediction Failure:</b> We cannot predict fire <i>size</i>. The severity model achieved an R2 of -0.11 because size is dictated by wind direction and suppression timing, which satellites cannot observe.</li>
-                <li><b>Resolution Limits:</b> The model operates on a 100km grid. It cannot predict a fire on a specific street corner.</li>
-                <li><b>Single Year Base:</b> The primary model is trained on the extreme 2020 Black Summer. It requires calibration for normal fire years.</li>
-                <li><b>Active Fire vs Burned Area:</b> We count thermal anomalies, not hectares burned.</li>
-            </ul>
+        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;
+        margin-bottom:1rem;box-shadow:0 2px 8px rgba(37,99,168,0.06); height: 100%;'>
+            <div style='font-family:Sora,sans-serif;font-size:1rem;font-weight:700;color:#1e3a5f;margin-bottom:0.8rem'>
+                Human Associated
+            </div>
+            <div style='font-size:0.84rem;color:#4a6080;line-height:1.85; margin-bottom: 0.8rem;'>
+                Fires near infrastructure. Ignition probability is higher, but severity remains lower due to rapid suppression response.
+            </div>
+            <div style='background:#f0f4f8;border-radius:8px;padding:0.8rem;font-size:0.8rem;color:#1e3a5f;'>
+                <b>Avg distance to road:</b> 232 metres<br>
+                <b>Avg distance to fire station:</b> 6.5 km<br>
+                <b>Typical cause:</b> Accidental ignitions (vehicles, machinery, arson).<br>
+                <b>Typical outcome:</b> Reached and extinguished quickly.
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
     with col2:
-        st.markdown("### Future Improvements")
         st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
-            <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
-                <li><b>Live API Integration:</b> The model is currently a historical demonstration. The next step is to connect it to a live daily API that pulls the last 24 hours of FIRMS data and Open Meteo forecasts to generate a real time morning briefing map.</li>
-                <li><b>Live Weather Forecasts:</b> Replace the historical day of year proxy with actual 7 day weather forecasts to improve predictive accuracy.</li>
-                <li><b>Higher Resolution Grid:</b> Downscale from 100km cells to 25km cells to provide more localised, actionable intelligence for local councils.</li>
-                <li><b>Fuel Moisture (SMAP):</b> Integrate NASA SMAP soil moisture data to replace the mathematical proxy for fuel dryness.</li>
-            </ul>
+        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;
+        margin-bottom:1rem;box-shadow:0 2px 8px rgba(37,99,168,0.06); height: 100%;'>
+            <div style='font-family:Sora,sans-serif;font-size:1rem;font-weight:700;color:#1e3a5f;margin-bottom:0.8rem'>
+                Remote / Natural
+            </div>
+            <div style='font-size:0.84rem;color:#4a6080;line-height:1.85; margin-bottom: 0.8rem;'>
+                Fires in remote areas. These present significant monitoring and response challenges, and are highly correlated with accumulated drought.
+            </div>
+            <div style='background:#f0f4f8;border-radius:8px;padding:0.8rem;font-size:0.8rem;color:#1e3a5f;'>
+                <b>Avg distance to road:</b> 958 metres<br>
+                <b>Avg distance to fire station:</b> 14.2 km<br>
+                <b>Typical cause:</b> Lightning strikes during storms.<br>
+                <b>Typical outcome:</b> Burns uncontrolled for days.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Spacer to create the 50/50 alignment for the bottom box
+    st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+
+    # Bottom box now sits in a column layout to match the width above
+    b1, b2 = st.columns([1, 1])
+    
+    with b1:
+        st.markdown("""
+        <div class="info-box" style="border-left: 4px solid #dc2626; height: 100%; margin-bottom: 0;">
+        <b>The Catastrophic Impact:</b> While human activity causes more fire ignitions near towns, our analysis of 1,021 cause-attributed fires showed that 
+        <b>lightning-associated fires burn 5.7x larger on average</b> and account for <b>98% of the fires with the highest detection counts</b>. 
+        Standard fire indices treat these two scenarios as identical. FireSignal provides the data to distinguish them.
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with b2:
+        st.markdown("""
+        <div class="info-box" style="border-left: 4px solid #2563a8; height: 100%; margin-bottom: 0;">
+        <b>Note on fire merging:</b> When two fires approach each other, the model's spatial contagion feature captures the increased risk in the cells between them. 
+        While we don't explicitly model fire merging, our model learns that fires are not isolated, they interact spatially.
         </div>
         """, unsafe_allow_html=True)
