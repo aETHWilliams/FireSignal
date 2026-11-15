@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- CUSTOM CSS ---
+# --- customccs and shit ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Sora:wght@400;600;700&display=swap');
@@ -78,7 +78,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- THE BLACK SUMMER IMPACT BLOCK ---
+# --- black summer impaxct box ---
 st.markdown("""
 <div style='background:#ffffff; border-left: 6px solid #dc2626; border-radius: 10px; padding: 1.5rem 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(220,38,38,0.1);'>
     <div style='font-family: Sora, sans-serif; font-size: 1.1rem; font-weight: 700; color: #dc2626; margin-bottom: 0.8rem;'>
@@ -134,15 +134,15 @@ additional predictive information about where fire activity will occur next, dri
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2, tab3, tab4 = st.tabs(["How We Tested It", "Forecast Map", "Where Fires Start", "Data and Limitations"])
+tab1, tab2, tab3, tab4 = st.tabs(["How I Tested It", "Forecast Map", "Where Fires Start", "Data and Limitations"])
 
 with tab1:
-    st.markdown('<div class="section-title">How We Tested It</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">How I Tested It</div>', unsafe_allow_html=True)
     
     st.markdown("""
     <div class="info-box">
-    We grouped NASA FIRMS detections into a 1 degree grid (roughly 100km squares), creating 249,246 daily records. 
-    We trained the model on January to October and tested it on November to December to prevent data leakage.
+    I grouped NASA FIRMS detections into a 1 degree grid (roughly 100km squares), creating 249,246 daily records. 
+    I trained the model on January to October and tested it on November to December to prevent data leakage.
     </div>
     """, unsafe_allow_html=True)
 
@@ -151,18 +151,18 @@ with tab1:
     Standard fire models rely on weather. They tell you *"it is hot and dry here, so fire is possible."* 
     But they do not tell you **where** the next fire will start.<br><br>
     
-    Our research shows that fire acts like a spreading infection. If a fire is burning in one area today, 
+    My research shows that fire acts like a spreading infection. If a fire is burning in one area today, 
     the probability of a new fire starting in the neighbouring area tomorrow skyrockets. By adding a feature 
-    that simply asks the model *"Was there a fire next door yesterday?"*, our ability to predict where 
+    that simply asks the model *"Was there a fire next door yesterday?"*, the ability to predict where 
     the next fire will happen improved dramatically.<br><br>
     
-    **The Analogy:** Weather tells you if the grass is dry enough to catch a spark. Spatial contagion tells you 
+    **The Analogy:** Weather tells you if the grass is dry enough to catch a spark. Spatial dependence tells you 
     where the sparks are currently flying. You need both to predict the next fire.
     """, unsafe_allow_html=True)
 
     st.markdown("**1. Ablation Test**")
     st.markdown("""
-    To isolate the predictive value of spatial dependence, we compared two identical models:
+    To isolate the predictive value of spatial dependence, I compared two identical models:
     
     | Model | Features | AUC | PR-AUC |
     | :--- | :--- | :--- | :--- |
@@ -174,7 +174,7 @@ with tab1:
 
     st.markdown("**2. Permutation Importance**")
     st.markdown("""
-    Rather than relying on default feature importance (which can be biased), we shuffled individual features to measure their exact impact:
+    Rather than relying on default feature importance (which can be biased), I shuffled individual features to measure their exact impact:
     *   Neighbour fire yesterday: **0.144**
     *   Longitude: 0.067
     *   Latitude: 0.067
@@ -182,7 +182,7 @@ with tab1:
 
     st.markdown("**3. Does the model generalise?**")
     st.markdown("""
-    We stress tested the model to ensure it was not just memorising the 2020 data:
+    I stress tested the model to ensure it was not just memorising the 2020 data:
     
     | Validation Test | Description | Result |
     | :--- | :--- | :--- |
@@ -195,8 +195,8 @@ with tab1:
     st.markdown("""
     <div class="info-box" style="border-left: 4px solid #dc2626;">
     <b>Conclusion and Limitations:</b> Fire occurrence is measurably influenced by recent nearby fire activity. 
-    However, we also tested whether the system could predict fire <b>severity</b> (size). It performed poorly (CV R2 -0.11). 
-    We report this because understanding the limitations of satellite derived predictions is just as important as understanding their potential.
+    However, I also tested whether the system could predict fire <b>severity</b> (size). It performed poorly (CV R2 -0.11). 
+    I report this because understanding the limitations of satellite derived predictions is just as important as understanding their potential.
     </div>
     """, unsafe_allow_html=True)
 
@@ -204,11 +204,11 @@ with tab2:
     st.markdown('<div class="section-title">Forecast Map (November 15, 2020)</div>', unsafe_allow_html=True)
     
     st.markdown("""
-    NSW was predicted to be the most warned state, so we decided to focus the app on it showcasing its results. 
+    NSW was predicted to be the most warned state, so I decided to focus the app on it showcasing its results. 
     Hover over regions to see the driving factors.<br><br>
     
     <span style="font-size:0.8rem; color:#6b8cae;"><i>Note on map boundaries: Streamlit Community Cloud has strict memory limits. 
-    To keep the app fast and responsive, we have used a simplified spatial projection of the LGA boundaries. 
+    To keep the app fast and responsive, I have used a simplified spatial projection of the LGA boundaries. 
     This causes slight visual distortions in the proportions of the largest LGAs. A production deployment on a dedicated server 
     would render the full-resolution 44MB GeoJSON.</i></span>
     """, unsafe_allow_html=True)
@@ -315,7 +315,7 @@ with tab3:
     
     st.markdown("""
     <div class="info-box">
-    Our research identified differences between human associated and naturally caused fire activity:
+    My research identified differences between human associated and naturally caused fire activity:
     </div>
     """, unsafe_allow_html=True)
 
@@ -359,22 +359,30 @@ with tab3:
         </div>
         """, unsafe_allow_html=True)
 
+    # Spacer to create the 50/50 alignment for the bottom box
+    st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+
     # Single wide white box for the combined narrative
     st.markdown("""
-<div style='background:#ffffff; border:1px solid #dbe8f5; border-left: 6px solid #dc2626; border-radius:12px; padding:1.6rem 2rem; margin-top: 1.5rem; box-shadow: 0 2px 8px rgba(37,99,168,0.06);'>
-<div style='font-family:Sora,sans-serif; font-size:1rem; font-weight:700; color:#1e3a5f; margin-bottom: 1rem;'>
-The Catastrophic Impact
-</div>
-<div style='font-size:0.88rem; color:#4a6080; line-height:1.9;'>
-While human activity causes more fire ignitions near towns, our analysis of 1,021 cause-attributed fires showed that 
-<b>lightning-associated fires burn 5.7x larger on average</b> and account for <b>98% of the fires with the highest detection counts</b>. 
-Standard fire indices treat these two scenarios as identical. FireSignal provides the data to distinguish them.
-<br><br>
-<b style='color: #1e3a5f;'>Note on fire merging:</b> When two fires approach each other, the model's spatial contagion feature captures the increased risk in the cells between them. 
-While we don't explicitly model fire merging, our model learns that fires are not isolated. They interact spatially, which is why the model highlights the areas between active fire zones.
-</div>
-</div>
-""", unsafe_allow_html=True)
+    <div style='background:#ffffff; border:1px solid #dbe8f5; border-left: 6px solid #dc2626; border-radius:12px; padding:1.6rem 2rem; margin-top: 1.5rem; box-shadow: 0 2px 8px rgba(37,99,168,0.06);'>
+        
+        <div style='font-family:Sora,sans-serif; font-size:1rem; font-weight:700; color:#1e3a5f; margin-bottom: 1rem;'>
+            The Catastrophic Impact
+        </div>
+        
+        <div style='font-size:0.88rem; color:#4a6080; line-height:1.9;'>
+            While human activity causes more fire ignitions near towns, nmy analysis of 1,021 cause attributed fires showed that 
+            <b>lightning-associated fires showed substantially higher detection-count-based fire-size proxies</b> and account for 
+            <b>98% of the fires in the highest detection-count category</b>. 
+            Standard fire indices treat these two scenarios as identical. FireSignal provides the data to distinguish them.
+            <br><br>
+            
+            <b style='color: #1e3a5f;'>Note on fire merging:</b> When two fires approach each other, the model's spatial dependence feature captures the increased risk in the cells between them. 
+            While I don't explicitly model fire merging, the model learns that fires are not isolated. They interact spatially, which is why the model highlights the areas between active fire zones.
+        </div>
+        
+    </div>
+    """, unsafe_allow_html=True)
 
 with tab4:
     st.markdown('<div class="section-title">Data and Limitations</div>', unsafe_allow_html=True)
@@ -384,7 +392,7 @@ with tab4:
     with col1:
         st.markdown("### Data Sources")
         st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06); margin-bottom: 1.5rem;'>
+        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
             <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
                 <li><b>NASA FIRMS (MODIS and VIIRS):</b> 486,255 harmonised active fire detections for 2020, and 1.89M for 2019.</li>
                 <li><b>Open Meteo:</b> 54,300 daily weather records (temperature, rainfall, wind, ET0).</li>
@@ -400,39 +408,23 @@ with tab4:
         st.markdown("""
         <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
             <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
-                <li><b>Severity Prediction Failure:</b> We cannot predict fire <i>size</i>. The severity model achieved an R2 of -0.11 because size is dictated by wind direction and suppression timing, which satellites cannot observe.</li>
+                <li><b>Severity Prediction Failure:</b> I cannot predict fire <i>size</i>. The severity model achieved an R2 of -0.11 because size is dictated by wind direction and suppression timing, which satellites cannot observe.</li>
                 <li><b>Resolution Limits:</b> The model operates on a 100km grid. It cannot predict a fire on a specific street corner.</li>
                 <li><b>Single Year Base:</b> The primary model is trained on the extreme 2020 Black Summer. It requires calibration for normal fire years.</li>
-                <li><b>Active Fire vs Burned Area:</b> We count thermal anomalies, not hectares burned.</li>
+                <li><b>Active Fire vs Burned Area:</b> I count thermal anomalies, not hectares burned.</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
 
     with col2:
-        st.markdown("### Our Fuel Moisture Proxy")
-        st.markdown("""
-        <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06); margin-bottom: 1.5rem;'>
-            <div style='font-size:0.85rem;color:#4a6080;line-height:1.8;'>
-                High-resolution soil moisture data is notoriously difficult to align with daily fire events due to latency and cloud cover. 
-                To keep the pipeline lightweight and operational, we engineered a proxy for fuel moisture using weather variables:
-                <br><br>
-                <code style="background:#f0f4f8; padding: 2px 6px; border-radius: 4px; color: #1e3a5f;">fuel_moisture = 1 / (1 + rain - ET0)</code>
-                <br><br>
-                <b>Why this works:</b> It explicitly models the balance between moisture input (rainfall) and moisture loss (evapotranspiration). 
-                When ET0 outpaces rain, the fuel dries out. It is a standard hydrological balance model that proxies the physical conditions satellites look for.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("### Next Step: NASA SMAP")
+        st.markdown("### Future Improvements")
         st.markdown("""
         <div style='background:#ffffff;border:1px solid #dbe8f5;border-radius:12px;padding:1.4rem 1.6rem;box-shadow:0 2px 8px rgba(37,99,168,0.06);'>
-            <div style='font-size:0.85rem;color:#4a6080;line-height:1.8;'>
-                While our proxy is effective, the clear next step is to integrate <b>NASA's Soil Moisture Active Passive (SMAP)</b> mission.
-                <br><br>
-                SMAP provides direct, high-resolution measurements of surface and root-zone soil moisture. 
-                Replacing our mathematical proxy with SMAP L4 data would give the model a direct physical measurement of fuel dryness, 
-                potentially improving accuracy in regions where evapotranspiration rates are highly variable.
-            </div>
+            <ul style='font-size:0.85rem;color:#4a6080;line-height:1.8;margin-bottom:0;'>
+                <li><b>Live API Integration:</b> The model is currently a historical demonstration. The next step is to connect it to a live daily API that pulls the last 24 hours of FIRMS data and Open Meteo forecasts to generate a real time morning briefing map.</li>
+                <li><b>Live Weather Forecasts:</b> Replace the historical day of year proxy with actual 7 day weather forecasts to improve predictive accuracy.</li>
+                <li><b>Higher Resolution Grid:</b> Downscale from 100km cells to 25km cells to provide more localised, actionable intelligence for local councils.</li>
+                <li><b>Fuel Moisture (SMAP):</b> Integrate NASA SMAP soil moisture data to replace the mathematical proxy for fuel dryness.</li>
+            </ul>
         </div>
         """, unsafe_allow_html=True)
