@@ -202,11 +202,20 @@ with tab1:
 
 with tab2:
     st.markdown('<div class="section-title">Forecast Map (November 15, 2020)</div>', unsafe_allow_html=True)
-    st.markdown("NSW was predicted to be the most warned state, so we decided to focus the app on it showcasing its results. Hover over regions to see the driving factors.")
     
+    # --- THE HONEST EXPLANATION ---
+    st.markdown("""
+    NSW was predicted to be the most warned state, so we decided to focus the app on it showcasing its results. 
+    Hover over regions to see the driving factors.<br><br>
+    
+    <span style="font-size:0.8rem; color:#6b8cae;"><i>Note on map boundaries: Streamlit Community Cloud has strict memory limits. 
+    To keep the app fast and responsive, we have used a simplified spatial projection of the LGA boundaries. 
+    This causes slight visual distortions in the proportions of the largest LGAs. A production deployment on a dedicated server 
+    would render the full-resolution 44MB GeoJSON.</i></span>
+    """, unsafe_allow_html=True)
+
     try:
-        with open(f"{DRIVE}/australia_final_colored.geojson", "r") as f:
-            lga_geojson = json.load(f)
+        # ... (the rest of your map code stays exactly the same)
 
         layer = pdk.Layer(
             "GeoJsonLayer",
