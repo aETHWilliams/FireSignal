@@ -192,21 +192,25 @@ with tab1:
     | Severity model | Predict fire size (FRP) | CV R2 **-0.11** |
     """)
     
-    st.markdown("""
+      st.markdown("""
     <div class="info-box" style="border-left: 4px solid #dc2626;">
     <b>Conclusion and Limitations:</b> Fire occurrence is measurably influenced by recent nearby fire activity. 
     However, I also tested whether the system could predict fire <b>severity</b> (size). It performed poorly (CV R2 -0.11). 
     I report this because understanding the limitations of satellite derived predictions is just as important as understanding their potential.
     </div>
     """, unsafe_allow_html=True)
-        with st.expander("See detailed evaluation metrics"):
+
+    # NEW: Detailed Evaluation Metrics Expander
+    with st.expander("See detailed evaluation metrics"):
         st.markdown("""
-        *   **What we predict:** The 24-hour probability of a NASA FIRMS thermal anomaly detection within a 100km grid cell.
+        *   **What I predict:** The 24-hour probability of a NASA FIRMS thermal anomaly detection within a 100km grid cell.
         *   **Positive Event:** Any thermal anomaly detected in the cell on the following day.
-        *   **Ranking vs Calibration:** We optimized for ranking (AUC 0.854). For operational deployment, the raw scores would require calibration (e.g., isotonic regression) to ensure an 80% predicted risk corresponds to an 80% empirical probability.
+        *   **Ranking vs Calibration:** I optimized for ranking (AUC 0.854). For operational deployment, the raw scores would require calibration (e.g., isotonic regression) to ensure an 80% predicted risk corresponds to an 80% empirical probability.
         *   **PR-AUC:** 0.543 (Robust metric for imbalanced datasets).
         *   **Cause Attribution:** The 98% statistic is derived from 1,021 cause-attributed fires (Mulgar dataset).
         """)
+
+with tab2:
 
 with tab2:
     st.markdown('<div class="section-title">Forecast Map (November 15, 2020)</div>', unsafe_allow_html=True)
