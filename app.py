@@ -231,7 +231,7 @@ with tab2:
             pitch=0
         )
         
-        # 1. Reordered Tooltip for Clarity
+        # Reordered Tooltip for Clarity
         tooltip = {
             "html": "<div style='font-size:14px; margin-bottom: 5px;'><b>{LGA_NAME_2021}</b></div>"
                     "<div style='font-size:12px;'>Status: <b>{status}</b></div>"
@@ -239,7 +239,7 @@ with tab2:
                     "<hr style='margin:4px 0; border-color:#4a6080'>"
                     "<div style='font-size:11px;'><b>Model Inputs:</b><br/>"
                     "Drought (KBDI): {kbdi}<br/>"
-                    "Population (5km): {pop}<br/>"
+                    "Local Density (5km): {pop}<br/>"
                     "Dist to Powerline: {power}</div>",
             "style": {"backgroundColor": "#1e3a5f", "color": "white", "fontSize": "12px", "padding": "10px", "borderRadius": "6px", "width": "250px"}
         }
@@ -251,7 +251,7 @@ with tab2:
             map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
         ))
         
-        # 2. New Visual Legend Box (Clearer than text)
+        # Visual Legend Box
         st.markdown("""
         <div style='background:#ffffff; border-radius:10px; padding:1.2rem; margin-top:1.5rem; box-shadow: 0 2px 8px rgba(37,99,168,0.05); display:flex; justify-content:space-between; align-items:center;'>
             <div style='display:flex; align-items:center; gap: 10px;'>
@@ -273,11 +273,11 @@ with tab2:
         </div>
         """, unsafe_allow_html=True)
         
-        # 3. Explanatory Note
+        # Explanatory Note
         st.markdown("""
         <div class="info-box" style="border-left: 4px solid #2563a8; margin-top: 1rem;">
-        <b>Why does Tenterfield show 84% risk with 0 population?</b><br/>
-        The model combines weather, geography, and human data. Tenterfield is extremely dry (KBDI 195) and remote (0 population). 
+        <b>Why does Tenterfield show 84% risk with a low density?</b><br/>
+        The model combines weather, geography, and human data. Tenterfield is extremely dry (KBDI 195) and has a very low local density at its grid point. 
         This means a lightning strike here would cause a fire that authorities cannot easily reach. The model correctly identifies this as a <b>natural lightning risk</b>, 
         whereas areas closer to the coast might have lower drought but higher human ignition risk.
         </div>
