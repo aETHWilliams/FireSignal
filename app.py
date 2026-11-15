@@ -106,7 +106,7 @@ in harmonised satellite observations. It is designed to provide an additional in
 
 c1, c2, c3, c4 = st.columns(4)
 metrics = [
-    ("0.854", "Overall AUC"),
+    ("0.854", "Activity Forecast AUC"),
     ("0.790", "Median Holdout AUC"),
     ("249,246", "Grid Cells Analysed"),
     ("486,255", "NASA Detections Harmonised"),
@@ -141,8 +141,8 @@ with tab1:
     
     st.markdown("""
     <div class="info-box">
-    I grouped NASA FIRMS detections into a 1 degree grid (roughly 100km squares), creating 249,246 daily records. 
-    I trained the model on January to October and tested it on November to December to prevent data leakage.
+    <b>What I predict:</b> A 24-hour forecast of the probability that a NASA FIRMS thermal anomaly (active fire detection) will occur in a 100km grid cell. 
+    I grouped 486,255 detections into 249,246 daily records, trained on Jan-Oct, and tested on Nov-Dec.
     </div>
     """, unsafe_allow_html=True)
 
@@ -205,7 +205,7 @@ with tab1:
         st.markdown("""
         *   **What I predict:** The 24-hour probability of a NASA FIRMS thermal anomaly detection within a 100km grid cell.
         *   **Positive Event:** Any thermal anomaly detected in the cell on the following day.
-        *   **Ranking vs Calibration:** I optimised for ranking (AUC 0.854). For operational deployment, the raw scores would require calibration (e.g., isotonic regression) to ensure an 80% predicted risk corresponds to an 80% empirical probability.
+        *   **Ranking vs Calibration:** I optimized for ranking (AUC 0.854). For operational deployment, the raw scores would require calibration (e.g., isotonic regression) to ensure an 80% predicted risk corresponds to an 80% empirical probability.
         *   **PR-AUC:** 0.543 (Robust metric for imbalanced datasets).
         *   **Cause Attribution:** The 98% statistic is derived from 1,021 cause-attributed fires (Mulgar dataset).
         """)
