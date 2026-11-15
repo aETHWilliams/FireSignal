@@ -158,10 +158,10 @@ with tab2:
         )
         
         # ZOOM INTO QLD/NSW BORDER
-        view_state = pdk.ViewState(
-            latitude=-28.0,   # Centered roughly on the Gold Coast / Northern NSW border
-            longitude=153.0, 
-            zoom=6.5,         # Zoomed in to show local government areas
+               view_state = pdk.ViewState(
+            latitude=-28.5,   # Centered exactly on the Gold Coast / Tweed border
+            longitude=153.2, 
+            zoom=7.5,         # Zoomed in to show the LGA borders clearly
             pitch=0
         )
         
