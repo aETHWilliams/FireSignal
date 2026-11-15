@@ -23,13 +23,13 @@ Stress tested the model to ensure it was not just memorising the 2020 Black Summ
 * **Geographic holdout:** Trained on one region, tested on another (Median AUC 0.790).
 * **New ignitions only:** Removed ongoing fires (AUC 0.697).
 
-**Limitations:** Tested predicting fire *severity* (size) and it performed poorly (CV R² -0.11). We report this because understanding the limits of satellite derived predictions is just as important as understanding their potential.
+**Limitations:** Tested predicting fire *severity* (size) and it performed poorly (CV R² -0.11). I report this because understanding the limits of satellite derived predictions is just as important as understanding their potential.
 
 ## Data Sources
 * **Satellite Data:** NASA FIRMS (MODIS + VIIRS) - 486,255 harmonised active fire detections.
 * **Environmental Data:** Open-Meteo (Weather), WorldPop (Population density).
 * **Infrastructure:** OpenStreetMap (Powerlines).
-* **Research Data:** Mulgar (Monash University) for cause-attributed fires, Queensland Government for air quality.
+* **Research Data:** Mulgar (Monash University) for cause attributed fires, Queensland Government for air quality.
 
 ## Tech Stack
 * **Language:** Python
