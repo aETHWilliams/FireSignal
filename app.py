@@ -209,30 +209,20 @@ with tab1:
     
     st.markdown("""
     <div class="info-box" style="border-left: 4px solid #dc2626;">
-    <b>Conclusion and Limitations:</b> A same cell persistence baseline scores 0.807. FireSignal scores 0.854, 
-    showing that neighbouring cell information adds real predictive skill (+0.047 AUC) beyond persistence. 
+    <b>Conclusion and Limitations:</b> A same-cell persistence baseline scores 0.807. FireSignal scores 0.854, 
+    showing that neighbouring-cell information adds real predictive skill (+0.047 AUC) beyond persistence. 
     Most of the predictive signal is persistence, and I report that openly. I also tested fire severity prediction, 
     which failed (CV R2 -0.11) — documented honestly because understanding the limits of satellite data is 
     as important as understanding its potential.
     </div>
     """, unsafe_allow_html=True)
 
-    # Detailed Evaluation Metrics Expander
+    # Detailed Evaluation Metrics Expander (SINGLE COPY)
     with st.expander("See detailed evaluation metrics"):
         st.markdown("""
         *   **What I predict:** The 24-hour probability of a NASA FIRMS thermal anomaly detection within a 100km grid cell.
         *   **Positive Event:** Any thermal anomaly detected in the cell on the following day.
         *   **Ranking vs Calibration:** I optimized for ranking (AUC 0.854). For operational deployment, the raw scores would require calibration (e.g., isotonic regression) to ensure an 80% predicted risk corresponds to an 80% empirical probability.
-        *   **PR-AUC:** 0.543 (Robust metric for imbalanced datasets).
-        *   **Cause Attribution:** The 98% statistic is derived from 1,021 cause-attributed fires (Mulgar dataset).
-        """)
-
-    # Detailed Evaluation Metrics Expander
-    with st.expander("See detailed evaluation metrics"):
-        st.markdown("""
-        *   **What I predict:** The 24-hour probability of a NASA FIRMS thermal anomaly detection within a 100km grid cell.
-        *   **Positive Event:** Any thermal anomaly detected in the cell on the following day.
-        *   **Ranking vs Calibration:** I optimised for ranking (AUC 0.854). For operational deployment, the raw scores would require calibration (e.g., isotonic regression) to ensure an 80% predicted risk corresponds to an 80% empirical probability.
         *   **PR-AUC:** 0.543 (Robust metric for imbalanced datasets).
         *   **Cause Attribution:** The 98% statistic is derived from 1,021 cause-attributed fires (Mulgar dataset).
         """)
